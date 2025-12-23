@@ -17,8 +17,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _adsRemoved = false;
   bool _isRestoring = false;
   double _speechRate = 0.5;
-  double _pitch = 1.0;
   double _volume = 1.0;
+  bool _isMaleVoice = true;
 
   @override
   void initState() {
@@ -31,8 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await TtsService.instance.init();
     setState(() {
       _speechRate = TtsService.instance.speechRate;
-      _pitch = TtsService.instance.pitch;
       _volume = TtsService.instance.volume;
+      _isMaleVoice = TtsService.instance.isMaleVoice;
     });
   }
 
@@ -101,24 +101,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.graphic_eq),
-            title: const Text('\uc74c\uc131 \ud1a4'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${_pitch.toStringAsFixed(1)}'),
-                Slider(
-                  value: _pitch,
-                  min: 0.5,
-                  max: 2.0,
-                  divisions: 15,
-                  label: _pitch.toStringAsFixed(1),
-                  onChanged: (value) async {
-                    setState(() => _pitch = value);
-                    await TtsService.instance.setPitch(value);
-                  },
+            leading: const Icon(Icons.voice_chat),
+            title: const Text('l10n.voiceGender'),
+            subtitle: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment<bool>(
+                  value: true,
+                  label: Text('l10n.maleVoice'),
+                  icon: Icon(Icons.man),
+                ),
+                ButtonSegment<bool>(
+                  value: false,
+                  label: Text('l10n.femaleVoice'),
+                  icon: Icon(Icons.woman),
                 ),
               ],
+              selected: {_isMaleVoice},
+              onSelectionChanged: (Set<bool> selected) async {
+                setState(() => _isMaleVoice = selected.first);
+                await TtsService.instance.setVoiceGender(selected.first);
+              },
             ),
           ),
           ListTile(
@@ -251,9 +253,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final currentLang = TranslationService.instance.currentLanguage;
 
     // 중국어 간체 제거 - 영어, 한국어, 베트남어, 스페인어만 지원
-    final supportedLangs = TranslationService.supportedLanguages
-        .where((lang) => lang.code != 'zh')
-        .toList();
+    final supportedLangs =
+        TranslationService.supportedLanguages
+            .where((lang) => lang.code != 'zh')
+            .toList();
 
     showDialog(
       context: context,

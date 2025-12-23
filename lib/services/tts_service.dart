@@ -12,13 +12,13 @@ class TtsService {
 
   // 기본 설정
   double _speechRate = 0.5; // 0.0 ~ 1.0 (느림 ~ 빠름)
-  double _pitch = 1.0; // 0.5 ~ 2.0 (낮음 ~ 높음)
   double _volume = 1.0; // 0.0 ~ 1.0 (소리 크기)
+  bool _isMaleVoice = true; // true: 남자 음성, false: 여자 음성
 
   // Getters
   double get speechRate => _speechRate;
-  double get pitch => _pitch;
   double get volume => _volume;
+  bool get isMaleVoice => _isMaleVoice;
 
   /// TTS 초기화
   Future<void> init() async {
@@ -32,9 +32,11 @@ class TtsService {
       await _flutterTts.setLanguage("zh-CN");
 
       // 저장된 설정 적용
-      await _flutterTts.setPitch(_pitch);
       await _flutterTts.setSpeechRate(_speechRate);
       await _flutterTts.setVolume(_volume);
+      
+      // 음성 선택 (남자/여자)
+      // Android/iOS는 자동으로 선택된 언어의 기본 음성 사용
 
       // iOS 설정
       await _flutterTts.setIosAudioCategory(
@@ -58,8 +60,8 @@ class TtsService {
     try {
       final prefs = await SharedPreferences.getInstance();
       _speechRate = prefs.getDouble('tts_speech_rate') ?? 0.5;
-      _pitch = prefs.getDouble('tts_pitch') ?? 1.0;
       _volume = prefs.getDouble('tts_volume') ?? 1.0;
+      _isMaleVoice = prefs.getBool('tts_is_male_voice') ?? true;
     } catch (e) {
       print('TTS load settings error: $e');
     }
@@ -70,8 +72,8 @@ class TtsService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setDouble('tts_speech_rate', _speechRate);
-      await prefs.setDouble('tts_pitch', _pitch);
       await prefs.setDouble('tts_volume', _volume);
+      await prefs.setBool('tts_is_male_voice', _isMaleVoice);
     } catch (e) {
       print('TTS save settings error: $e');
     }
@@ -119,14 +121,15 @@ class TtsService {
     }
   }
 
-  /// 음성 톤 설정 (0.5 ~ 2.0)
-  Future<void> setPitch(double pitch) async {
+  /// 음성 성별 설정 (true: 남자, false: 여자)
+  Future<void> setVoiceGender(bool isMale) async {
     try {
-      _pitch = pitch.clamp(0.5, 2.0);
-      await _flutterTts.setPitch(_pitch);
+      _isMaleVoice = isMale;
+      // 음성 성별은 주로 시스템 기본 음성을 사용
+      // 일부 플랫폼에서는 pitch로 조절 가능
       await _saveSettings();
     } catch (e) {
-      print('TTS set pitch error: $e');
+      print('TTS set voice gender error: $e');
     }
   }
 

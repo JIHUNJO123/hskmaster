@@ -19,10 +19,11 @@ class TranslationService {
   static final TranslationService instance = TranslationService._init();
   TranslationService._init();
 
-  // Supported languages list - English, Korean, Chinese, Spanish, Vietnamese
+  // Supported languages list - English, Korean, Japanese, Chinese, Spanish, Vietnamese
   static const List<SupportedLanguage> supportedLanguages = [
     SupportedLanguage(code: 'en', name: 'English', nativeName: 'English'),
     SupportedLanguage(code: 'ko', name: 'Korean', nativeName: '한국어'),
+    SupportedLanguage(code: 'ja', name: 'Japanese', nativeName: '日本語'),
     SupportedLanguage(code: 'zh', name: 'Chinese', nativeName: '中文'),
     SupportedLanguage(code: 'es', name: 'Spanish', nativeName: 'Español'),
     SupportedLanguage(code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt'),

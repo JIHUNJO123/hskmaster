@@ -1,17 +1,15 @@
 import 'dart:convert';
 
-/// 단어 모델 (일상/여행 일본어 - 카테고리별)
+/// 단어 모델 (HSK 중국어)
 class Word {
   final int id;
-  final String word; // 일본어 단어 (한자+히라가나 혼합)
-  final String? kanji; // 한자 부분
-  final String? hiragana; // 히라가나 읽기
-  final String category; // 카테고리
-  final String partOfSpeech; // 품사
+  final String word; // 중국어 간체자
+  final String pinyin; // 병음
   final String definition; // 영어 정의
+  final String level; // HSK 레벨 (HSK1-HSK6)
   final String example; // 영어 예문
-  final String? exampleJp; // 일본어 예문
-  final String? exampleReading; // 예문 읽기
+  final String? exampleZh; // 중국어 예문
+  final String? examplePinyin; // 예문 병음
   bool isFavorite;
 
   // 내장 번역 데이터 (words.json에서 로드)
@@ -24,14 +22,12 @@ class Word {
   Word({
     required this.id,
     required this.word,
-    this.kanji,
-    this.hiragana,
-    required this.category,
-    this.partOfSpeech = '',
+    required this.pinyin,
+    required this.level,
     required this.definition,
     this.example = '',
-    this.exampleJp,
-    this.exampleReading,
+    this.exampleZh,
+    this.examplePinyin,
     this.isFavorite = false,
     this.translations,
     this.translatedDefinition,
@@ -52,23 +48,23 @@ class Word {
     Map<String, Map<String, String>>? translations = {};
 
     // 다국어 번역 필드 처리
-    final langCodes = ['ko', 'zh', 'es', 'vi'];
+    final langCodes = ['ko', 'ja', 'es', 'vi'];
     for (final lang in langCodes) {
       String? def;
       String? ex;
 
-      // 직접 필드 (korean, chinese 등)
+      // 직접 필드 (korean, japanese 등)
       if (lang == 'ko' && json['korean'] != null) {
         def = json['korean']?.toString();
-      } else if (lang == 'zh' && json['chinese'] != null) {
-        def = json['chinese']?.toString();
+      } else if (lang == 'ja' && json['japanese'] != null) {
+        def = json['japanese']?.toString();
       } else if (lang == 'es' && json['spanish'] != null) {
         def = json['spanish']?.toString();
       } else if (lang == 'vi' && json['vietnamese'] != null) {
         def = json['vietnamese']?.toString();
       }
 
-      // 예문 번역 - example_ko, example_zh, example_es, example_vi
+      // 예문 번역 - example_ko, example_ja, example_es, example_vi
       final exKey = 'example_$lang';
       if (json[exKey] != null && json[exKey].toString().isNotEmpty) {
         ex = json[exKey].toString();
@@ -80,29 +76,15 @@ class Word {
       }
     }
 
-    // translations 객체가 있으면 사용
-    if (json['translations'] != null && json['translations'] is Map) {
-      (json['translations'] as Map<String, dynamic>).forEach((langCode, data) {
-        if (data is Map<String, dynamic>) {
-          translations[langCode] = {
-            'definition': data['definition']?.toString() ?? '',
-            'example': data['example']?.toString() ?? '',
-          };
-        }
-      });
-    }
-
     return Word(
       id: json['id'] ?? 0,
       word: json['word'] ?? '',
-      kanji: json['kanji'] ?? json['word'],
-      hiragana: json['reading'] ?? json['hiragana'],
-      category: json['category'] ?? 'daily',
-      partOfSpeech: json['part_of_speech'] ?? json['partOfSpeech'] ?? '',
+      pinyin: json['pinyin'] ?? '',
+      level: json['level'] ?? 'HSK1',
       definition: json['definition'] ?? '',
       example: json['example_en'] ?? json['example'] ?? '',
-      exampleJp: json['example_jp'] ?? json['exampleJapanese'],
-      exampleReading: json['example_reading'] ?? json['exampleReading'],
+      exampleZh: json['example_zh'],
+      examplePinyin: json['example_pinyin'],
       isFavorite: json['is_favorite'] == 1 || json['isFavorite'] == true,
       translations: translations.isNotEmpty ? translations : null,
     );
@@ -133,14 +115,12 @@ class Word {
     return Word(
       id: json['id'] as int,
       word: json['word'] as String,
-      kanji: json['kanji'] as String?,
-      hiragana: json['hiragana'] as String?,
-      category: json['category'] as String? ?? 'daily',
-      partOfSpeech: json['partOfSpeech'] as String? ?? '',
+      pinyin: json['pinyin'] as String? ?? '',
+      level: json['level'] as String? ?? 'HSK1',
       definition: json['definition'] as String,
       example: json['example'] as String? ?? '',
-      exampleJp: json['example_jp'] as String?,
-      exampleReading: json['example_reading'] as String?,
+      exampleZh: json['example_zh'] as String?,
+      examplePinyin: json['example_pinyin'] as String?,
       isFavorite: (json['isFavorite'] as int?) == 1,
       translations: translations,
     );
@@ -150,14 +130,12 @@ class Word {
     return {
       'id': id,
       'word': word,
-      'kanji': kanji,
-      'hiragana': hiragana,
-      'category': category,
-      'partOfSpeech': partOfSpeech,
+      'pinyin': pinyin,
+      'level': level,
       'definition': definition,
       'example': example,
-      'example_jp': exampleJp,
-      'example_reading': exampleReading,
+      'example_zh': exampleZh,
+      'example_pinyin': examplePinyin,
       'isFavorite': isFavorite ? 1 : 0,
       'translations': translations,
     };
@@ -183,18 +161,13 @@ class Word {
     return example;
   }
 
-  /// 단어 표시 (한자 + 히라가나)
+  /// 단어 표시 (중국어 + 병음)
   String getDisplayWord({String displayMode = 'parentheses'}) {
-    if (kanji != null &&
-        hiragana != null &&
-        kanji!.isNotEmpty &&
-        hiragana!.isNotEmpty &&
-        kanji != hiragana &&
-        word != hiragana) {
-      if (displayMode == 'furigana') {
-        return '$kanji [$hiragana]';
+    if (pinyin.isNotEmpty) {
+      if (displayMode == 'bracket') {
+        return '$word [$pinyin]';
       } else {
-        return '$kanji ($hiragana)';
+        return '$word ($pinyin)';
       }
     }
     return word;
@@ -203,14 +176,12 @@ class Word {
   Word copyWith({
     int? id,
     String? word,
-    String? kanji,
-    String? hiragana,
-    String? category,
-    String? partOfSpeech,
+    String? pinyin,
+    String? level,
     String? definition,
     String? example,
-    String? exampleJp,
-    String? exampleReading,
+    String? exampleZh,
+    String? examplePinyin,
     bool? isFavorite,
     Map<String, Map<String, String>>? translations,
     String? translatedDefinition,
@@ -219,14 +190,12 @@ class Word {
     return Word(
       id: id ?? this.id,
       word: word ?? this.word,
-      kanji: kanji ?? this.kanji,
-      hiragana: hiragana ?? this.hiragana,
-      category: category ?? this.category,
-      partOfSpeech: partOfSpeech ?? this.partOfSpeech,
+      pinyin: pinyin ?? this.pinyin,
+      level: level ?? this.level,
       definition: definition ?? this.definition,
       example: example ?? this.example,
-      exampleJp: exampleJp ?? this.exampleJp,
-      exampleReading: exampleReading ?? this.exampleReading,
+      exampleZh: exampleZh ?? this.exampleZh,
+      examplePinyin: examplePinyin ?? this.examplePinyin,
       isFavorite: isFavorite ?? this.isFavorite,
       translations: translations ?? this.translations,
       translatedDefinition: translatedDefinition ?? this.translatedDefinition,
@@ -235,50 +204,87 @@ class Word {
   }
 }
 
-/// 카테고리 모델
-class Category {
+/// HSK 레벨 정보
+class HskLevel {
+  final String id; // HSK1, HSK2, etc.
+  final String name;
+  final int number; // 1, 2, 3, 4, 5, 6
+  final String color;
+
+  const HskLevel({
+    required this.id,
+    required this.name,
+    required this.number,
+    required this.color,
+  });
+
+  static const List<HskLevel> all = [
+    HskLevel(id: 'HSK1', name: 'HSK 1', number: 1, color: '#4CAF50'),
+    HskLevel(id: 'HSK2', name: 'HSK 2', number: 2, color: '#2196F3'),
+    HskLevel(id: 'HSK3', name: 'HSK 3', number: 3, color: '#FF9800'),
+    HskLevel(id: 'HSK4', name: 'HSK 4', number: 4, color: '#F44336'),
+    HskLevel(id: 'HSK5', name: 'HSK 5', number: 5, color: '#9C27B0'),
+    HskLevel(id: 'HSK6', name: 'HSK 6', number: 6, color: '#795548'),
+  ];
+
+  static HskLevel fromString(String levelStr) {
+    return all.firstWhere(
+      (level) => level.id == levelStr,
+      orElse: () => all[0],
+    );
+  }
+}
+
+/// HSK 레벨 카테고리 (JSON 파일에서 로드)
+class Level {
   final String id;
   final String nameEn;
   final String nameKo;
   final String nameZh;
-  final String nameEs;
   final String nameVi;
-  final int wordCount;
-  final String icon;
+  final String? descriptionEn;
+  final String? descriptionKo;
+  final String? descriptionZh;
+  final String? descriptionVi;
+  final String color;
+  final int? wordCount;
 
-  Category({
+  Level({
     required this.id,
     required this.nameEn,
     required this.nameKo,
     required this.nameZh,
-    required this.nameEs,
     required this.nameVi,
-    required this.wordCount,
-    required this.icon,
+    this.descriptionEn,
+    this.descriptionKo,
+    this.descriptionZh,
+    this.descriptionVi,
+    required this.color,
+    this.wordCount,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json['id'] ?? '',
-      nameEn: json['name_en'] ?? '',
-      nameKo: json['name_ko'] ?? '',
-      nameZh: json['name_zh'] ?? '',
-      nameEs: json['name_es'] ?? '',
-      nameVi: json['name_vi'] ?? '',
-      wordCount: json['word_count'] ?? 0,
-      icon: _getIconForCategory(json['id'] ?? ''),
+  factory Level.fromJson(Map<String, dynamic> json) {
+    return Level(
+      id: json['id'] as String,
+      nameEn: json['name_en'] as String,
+      nameKo: json['name_ko'] as String,
+      nameZh: json['name_zh'] as String,
+      nameVi: json['name_vi'] as String,
+      descriptionEn: json['description_en'] as String?,
+      descriptionKo: json['description_ko'] as String?,
+      descriptionZh: json['description_zh'] as String?,
+      descriptionVi: json['description_vi'] as String?,
+      color: json['color'] as String,
+      wordCount: json['word_count'] as int?,
     );
   }
 
-  /// 언어 코드에 맞는 이름 반환
-  String getName(String langCode) {
-    switch (langCode) {
+  String getName(String languageCode) {
+    switch (languageCode) {
       case 'ko':
         return nameKo;
       case 'zh':
         return nameZh;
-      case 'es':
-        return nameEs;
       case 'vi':
         return nameVi;
       default:
@@ -286,50 +292,16 @@ class Category {
     }
   }
 
-  static String _getIconForCategory(String categoryId) {
-    const icons = {
-      'greeting': '👋',
-      'restaurant': '🍽️',
-      'shopping': '🛒',
-      'transport': '🚃',
-      'hotel': '🏨',
-      'emergency': '🚨',
-      'daily': '📅',
-      'emotion': '😊',
-      'hospital': '🏥',
-      'school': '🏫',
-      'business': '💼',
-      'bank': '🏦',
-      'salon': '💇',
-      'home': '🏠',
-      'weather': '🌤️',
-      'party': '🎉',
-    };
-    return icons[categoryId] ?? '📚';
+  String? getDescription(String languageCode) {
+    switch (languageCode) {
+      case 'ko':
+        return descriptionKo;
+      case 'zh':
+        return descriptionZh;
+      case 'vi':
+        return descriptionVi;
+      default:
+        return descriptionEn;
+    }
   }
-}
-
-/// 카테고리 목록
-class CategoryList {
-  static const List<String> all = [
-    'greeting',
-    'restaurant',
-    'shopping',
-    'transport',
-    'hotel',
-    'emergency',
-    'daily',
-    'emotion',
-  ];
-
-  static const Map<String, String> icons = {
-    'greeting': '👋',
-    'restaurant': '🍽️',
-    'shopping': '🛒',
-    'transport': '🚃',
-    'hotel': '🏨',
-    'emergency': '🏥',
-    'daily': '🏠',
-    'emotion': '😊',
-  };
 }

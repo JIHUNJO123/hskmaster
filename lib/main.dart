@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Daily Japanese',
+      title: 'HSK Master',
       debugShowCheckedModeBanner: false,
       locale: _locale,
       localizationsDelegates: const [

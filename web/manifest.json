@@ -1,11 +1,11 @@
 {
-    "name": "daily_japanese_app",
-    "short_name": "daily_japanese_app",
+    "name": "HSK Master",
+    "short_name": "HSK Master",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "HSK Master - Master Chinese vocabulary for HSK exam success",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

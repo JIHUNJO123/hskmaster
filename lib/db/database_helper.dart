@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 import '../models/word.dart';
 
@@ -12,11 +14,16 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('daily_japanese.db');
+    _database = await _initDB('hsk_master.db');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
+    // 웹 지원을 위한 database factory 설정
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    }
+
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
@@ -33,14 +40,12 @@ class DatabaseHelper {
       CREATE TABLE words (
         id INTEGER PRIMARY KEY,
         word TEXT NOT NULL,
-        kanji TEXT,
-        hiragana TEXT,
-        category TEXT NOT NULL,
-        partOfSpeech TEXT,
+        pinyin TEXT NOT NULL,
+        level TEXT NOT NULL,
         definition TEXT NOT NULL,
         example TEXT,
-        example_jp TEXT,
-        example_reading TEXT,
+        example_zh TEXT,
+        example_pinyin TEXT,
         isFavorite INTEGER DEFAULT 0,
         translations TEXT
       )
@@ -64,8 +69,8 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE INDEX idx_words_category 
-      ON words(category)
+      CREATE INDEX idx_words_level 
+      ON words(level)
     ''');
 
     await _loadInitialData(db);
@@ -94,10 +99,10 @@ class DatabaseHelper {
             'example': wordJson['example_ko']?.toString() ?? '',
           };
         }
-        if (wordJson['chinese'] != null) {
-          translationsMap['zh'] = {
-            'definition': wordJson['chinese'].toString(),
-            'example': wordJson['example_zh']?.toString() ?? '',
+        if (wordJson['japanese'] != null) {
+          translationsMap['ja'] = {
+            'definition': wordJson['japanese'].toString(),
+            'example': wordJson['example_ja']?.toString() ?? '',
           };
         }
         if (wordJson['spanish'] != null) {
@@ -121,19 +126,17 @@ class DatabaseHelper {
         await db.insert('words', {
           'id': wordJson['id'],
           'word': wordJson['word'] ?? '',
-          'kanji': wordJson['kanji'] ?? wordJson['word'] ?? '',
-          'hiragana': wordJson['hiragana'] ?? wordJson['reading'] ?? '',
-          'category': wordJson['category'] ?? 'daily',
-          'partOfSpeech': wordJson['part_of_speech'] ?? '',
+          'pinyin': wordJson['pinyin'] ?? '',
+          'level': wordJson['level'] ?? 'HSK1',
           'definition': wordJson['definition'] ?? '',
           'example': wordJson['example_en'] ?? wordJson['example'] ?? '',
-          'example_jp': wordJson['example_jp'] ?? '',
-          'example_reading': wordJson['example_reading'] ?? '',
+          'example_zh': wordJson['example_zh'] ?? '',
+          'example_pinyin': wordJson['example_pinyin'] ?? '',
           'isFavorite': 0,
           'translations': translationsJson,
         });
       }
-      print('Loaded ${data.length} daily Japanese words successfully');
+      print('Loaded ${data.length} HSK words successfully');
     } catch (e) {
       print('Error loading initial data: $e');
     }
@@ -197,33 +200,33 @@ class DatabaseHelper {
     return result.map((json) => Word.fromDb(json)).toList();
   }
 
-  Future<List<Word>> getWordsByCategory(String category) async {
+  Future<List<Word>> getWordsByLevel(String level) async {
     final db = await instance.database;
     final result = await db.query(
       'words',
-      where: 'category = ?',
-      whereArgs: [category],
+      where: 'level = ?',
+      whereArgs: [level],
       orderBy: 'id ASC',
     );
     return result.map((json) => Word.fromDb(json)).toList();
   }
 
-  Future<List<String>> getAllCategories() async {
+  Future<List<String>> getAllLevels() async {
     final db = await instance.database;
     final result = await db.rawQuery(
-      'SELECT DISTINCT category FROM words ORDER BY category ASC',
+      'SELECT DISTINCT level FROM words ORDER BY level ASC',
     );
-    return result.map((row) => row['category'] as String).toList();
+    return result.map((row) => row['level'] as String).toList();
   }
 
-  Future<Map<String, int>> getWordCountByCategory() async {
+  Future<Map<String, int>> getWordCountByLevel() async {
     final db = await instance.database;
     final result = await db.rawQuery(
-      'SELECT category, COUNT(*) as count FROM words GROUP BY category',
+      'SELECT level, COUNT(*) as count FROM words GROUP BY level',
     );
     final Map<String, int> counts = {};
     for (var row in result) {
-      counts[row['category'] as String] = row['count'] as int;
+      counts[row['level'] as String] = row['count'] as int;
     }
     return counts;
   }
@@ -243,7 +246,7 @@ class DatabaseHelper {
     final db = await instance.database;
     final result = await db.query(
       'words',
-      where: 'word LIKE ? OR definition LIKE ? OR hiragana LIKE ?',
+      where: 'word LIKE ? OR definition LIKE ? OR pinyin LIKE ?',
       whereArgs: ['%$query%', '%$query%', '%$query%'],
       orderBy: 'word ASC',
     );
@@ -325,15 +328,15 @@ class DatabaseHelper {
     }
   }
 
-  Future<List<Category>> loadCategories() async {
+  Future<List<Level>> loadLevels() async {
     try {
       final String response = await rootBundle.loadString(
-        'assets/data/categories.json',
+        'assets/data/levels.json',
       );
       final List<dynamic> data = json.decode(response);
-      return data.map((json) => Category.fromJson(json)).toList();
+      return data.map((json) => Level.fromJson(json)).toList();
     } catch (e) {
-      print('Error loading categories: $e');
+      print('Error loading levels: $e');
       return [];
     }
   }

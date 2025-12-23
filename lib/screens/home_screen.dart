@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _isBannerAdLoaded = false;
   String? _lastLanguage;
-  List<Category> _categories = [];
+  List<Level> _levels = [];
 
   @override
   void initState() {
@@ -65,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
       // Load today's word
       final word = await DatabaseHelper.instance.getTodayWord();
 
-      // Load categories
-      final categories = await DatabaseHelper.instance.loadCategories();
+      // Load levels
+      final levels = await DatabaseHelper.instance.loadLevels();
 
       if (word != null) {
         final translationService = TranslationService.instance;
@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {
               _todayWord = word;
               _translatedDefinition = embeddedTranslation;
-              _categories = categories;
+              _levels = levels;
               _isLoading = false;
             });
           }
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {
               _todayWord = word;
               _translatedDefinition = null;
-              _categories = categories;
+              _levels = levels;
               _isLoading = false;
             });
           }
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           setState(() {
             _todayWord = null;
-            _categories = categories;
+            _levels = levels;
             _isLoading = false;
           });
         }
@@ -171,16 +171,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Categories
-                  Text(
-                    l10n.categories,
-                    style: const TextStyle(
+                  // HSK Levels
+                  const Text(
+                    'HSK Levels',
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildCategoryCards(),
+                  _buildLevelCards(),
                 ],
               ),
             ),
@@ -285,11 +285,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: theme.colorScheme.onPrimary,
                 ),
               ),
-              if (_todayWord!.hiragana != null &&
-                  _todayWord!.hiragana!.isNotEmpty &&
-                  _todayWord!.hiragana != _todayWord!.word)
+              if (_todayWord!.pinyin.isNotEmpty)
                 Text(
-                  _todayWord!.hiragana!,
+                  _todayWord!.pinyin,
                   style: TextStyle(
                     fontSize: 18,
                     color: theme.colorScheme.onPrimary.withOpacity(0.9),
@@ -421,28 +419,47 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryCards() {
+  Widget _buildLevelCards() {
     final langCode = TranslationService.instance.currentLanguage;
 
-    if (_categories.isEmpty) {
+    if (_levels.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _categories.length,
+      itemCount: _levels.length,
       itemBuilder: (context, index) {
-        final category = _categories[index];
+        final level = _levels[index];
+        final hskLevel = HskLevel.fromString(level.id);
+        final levelColor = Color(int.parse(level.color.replaceFirst('#', '0xFF')));
+        
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
-            leading: Text(category.icon, style: const TextStyle(fontSize: 28)),
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: levelColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '${hskLevel.number}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
             title: Text(
-              category.getName(langCode),
+              level.getName(langCode),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            subtitle: Text('${category.wordCount} words'),
+            subtitle: Text(level.getDescription(langCode) ?? ''),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.push(
@@ -450,8 +467,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                   builder:
                       (context) => WordListScreen(
-                        category: category.id,
-                        categoryName: category.getName(langCode),
+                        level: level.id,
+                        levelName: level.getName(langCode),
                       ),
                 ),
               );

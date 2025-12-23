@@ -10,14 +10,14 @@ import '../services/ad_service.dart';
 import 'word_detail_screen.dart';
 
 class WordListScreen extends StatefulWidget {
-  final String? category;
-  final String? categoryName;
+  final String? level;
+  final String? levelName;
   final bool isFlashcardMode;
 
   const WordListScreen({
     super.key,
-    this.category,
-    this.categoryName,
+    this.level,
+    this.levelName,
     this.isFlashcardMode = false,
   });
 
@@ -33,7 +33,7 @@ class _WordListScreenState extends State<WordListScreen> {
   String _sortOrder = 'alphabetical';
   bool _isBannerAdLoaded = false;
   String _searchQuery = '';
-  bool _showCategoryBadge = true; // 카테고리 뱃지 표시 여부
+  bool _showLevelBadge = true; // 레벨 뱃지 표시 여부
 
   final ScrollController _listScrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
@@ -42,9 +42,9 @@ class _WordListScreenState extends State<WordListScreen> {
 
   // 스크롤/플래시카드 위치 저장용 키
   String get _scrollPositionKey =>
-      'scroll_position_${widget.category ?? "all"}_${widget.isFlashcardMode}';
+      'scroll_position_${widget.level ?? "all"}_${widget.isFlashcardMode}';
   String get _flashcardPositionKey =>
-      'flashcard_position_${widget.category ?? "all"}';
+      'flashcard_position_${widget.level ?? "all"}';
 
   @override
   void initState() {
@@ -78,7 +78,7 @@ class _WordListScreenState extends State<WordListScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _showCategoryBadge = prefs.getBool('showCategoryBadge') ?? true;
+      _showLevelBadge = prefs.getBool('showLevelBadge') ?? true;
     });
   }
 
@@ -125,10 +125,8 @@ class _WordListScreenState extends State<WordListScreen> {
 
   Future<void> _loadWords() async {
     List<Word> words;
-    if (widget.category != null) {
-      words = await DatabaseHelper.instance.getWordsByCategory(
-        widget.category!,
-      );
+    if (widget.level != null) {
+      words = await DatabaseHelper.instance.getWordsByLevel(widget.level!);
     } else {
       words = await DatabaseHelper.instance.getAllWords();
     }
@@ -167,7 +165,7 @@ class _WordListScreenState extends State<WordListScreen> {
     final query = _searchQuery.toLowerCase();
     return _words.where((w) {
       return w.word.toLowerCase().contains(query) ||
-          (w.hiragana?.toLowerCase().contains(query) ?? false) ||
+          w.pinyin.toLowerCase().contains(query) ||
           w.definition.toLowerCase().contains(query) ||
           (_translatedDefinitions[w.id]?.toLowerCase().contains(query) ??
               false);
@@ -203,27 +201,27 @@ class _WordListScreenState extends State<WordListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.categoryName ??
+          widget.levelName ??
               (widget.isFlashcardMode ? l10n.flashcard : l10n.allWords),
         ),
         actions: [
-          // 카테고리 뱃지 토글 (전체 단어 보기 또는 플래시카드 모드에서만)
-          if (widget.category == null)
+          // 레벨 뱃지 토글 (전체 단어 보기 또는 플래시카드 모드에서만)
+          if (widget.level == null)
             IconButton(
               icon: Icon(
-                _showCategoryBadge ? Icons.label : Icons.label_off,
+                _showLevelBadge ? Icons.label : Icons.label_off,
                 color:
-                    _showCategoryBadge
+                    _showLevelBadge
                         ? Theme.of(context).colorScheme.primary
                         : null,
               ),
-              tooltip: 'Toggle category badge',
+              tooltip: 'Toggle level badge',
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
                 setState(() {
-                  _showCategoryBadge = !_showCategoryBadge;
+                  _showLevelBadge = !_showLevelBadge;
                 });
-                await prefs.setBool('showCategoryBadge', _showCategoryBadge);
+                await prefs.setBool('showLevelBadge', _showLevelBadge);
               },
             ),
           if (!widget.isFlashcardMode)
@@ -387,8 +385,8 @@ class _WordListScreenState extends State<WordListScreen> {
                     ),
                   ),
                 ),
-                // 카테고리 뱃지 (전체 단어 보기에서만 표시)
-                if (widget.category == null && _showCategoryBadge)
+                // 레벨 배지 (전체 단어 보기에서만 표시)
+                if (widget.level == null && _showLevelBadge)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -399,7 +397,7 @@ class _WordListScreenState extends State<WordListScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      _getCategoryName(word.category),
+                      word.level,
                       style: TextStyle(
                         fontSize: 10,
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -411,11 +409,9 @@ class _WordListScreenState extends State<WordListScreen> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (word.hiragana != null &&
-                    word.hiragana!.isNotEmpty &&
-                    word.hiragana != word.word)
+                if (word.pinyin.isNotEmpty)
                   Text(
-                    word.hiragana!,
+                    word.pinyin,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -479,11 +475,8 @@ class _WordListScreenState extends State<WordListScreen> {
               final word = words[index];
               final translatedDef = _translatedDefinitions[word.id];
 
-              // 히라가나가 단어와 같거나 비어있으면 표시하지 않음
-              final showHiragana =
-                  word.hiragana != null &&
-                  word.hiragana!.isNotEmpty &&
-                  word.hiragana != word.word;
+              // 병음이 비어있지 않으면 표시
+              final showPinyin = word.pinyin.isNotEmpty;
 
               return Padding(
                 padding: const EdgeInsets.all(24),
@@ -491,13 +484,13 @@ class _WordListScreenState extends State<WordListScreen> {
                   direction: FlipDirection.HORIZONTAL,
                   front: _buildCardFace(
                     word.word,
-                    showHiragana ? word.hiragana : null,
+                    showPinyin ? word.pinyin : null,
                     true,
                     word,
                   ),
                   back: _buildCardFace(
                     translatedDef ?? word.definition,
-                    word.exampleJp,
+                    word.exampleZh,
                     false,
                     word,
                   ),
@@ -588,8 +581,8 @@ class _WordListScreenState extends State<WordListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 카테고리 뱃지 (앞면에서만, 전체 단어 보기에서만)
-            if (isFront && widget.category == null && _showCategoryBadge) ...[
+            // 레벨 뱃지 (앞면에서만, 전체 단어 보기에서만)
+            if (isFront && widget.level == null && _showLevelBadge) ...[
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -600,7 +593,7 @@ class _WordListScreenState extends State<WordListScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  _getCategoryName(word.category),
+                  word.level,
                   style: TextStyle(
                     fontSize: 12,
                     color: theme.colorScheme.onPrimary,
@@ -668,46 +661,5 @@ class _WordListScreenState extends State<WordListScreen> {
         duration: const Duration(seconds: 1),
       ),
     );
-  }
-
-  /// 카테고리 ID를 현재 언어로 번역된 이름으로 변환
-  String _getCategoryName(String categoryId) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (categoryId) {
-      case 'greeting':
-        return l10n.greeting;
-      case 'restaurant':
-        return l10n.restaurant;
-      case 'shopping':
-        return l10n.shopping;
-      case 'transport':
-        return l10n.transport;
-      case 'hotel':
-        return l10n.hotel;
-      case 'emergency':
-        return l10n.emergency;
-      case 'daily':
-        return l10n.daily;
-      case 'emotion':
-        return l10n.emotion;
-      case 'hospital':
-        return l10n.hospital;
-      case 'school':
-        return l10n.school;
-      case 'business':
-        return l10n.business;
-      case 'bank':
-        return l10n.bank;
-      case 'salon':
-        return l10n.salon;
-      case 'home':
-        return l10n.home;
-      case 'weather':
-        return l10n.weather;
-      case 'party':
-        return l10n.party;
-      default:
-        return categoryId;
-    }
   }
 }

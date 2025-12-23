@@ -3,6 +3,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../db/database_helper.dart';
 import '../models/word.dart';
 import '../services/translation_service.dart';
+import '../services/tts_service.dart';
 
 class WordDetailScreen extends StatefulWidget {
   final Word word;
@@ -17,6 +18,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
   late Word _word;
   String? _translatedDefinition;
   String? _translatedExample;
+  bool _isSpeaking = false;
 
   @override
   void initState() {
@@ -60,6 +62,39 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
     );
   }
 
+  Future<void> _speakWord() async {
+    if (_isSpeaking) {
+      await TtsService.instance.stop();
+      setState(() {
+        _isSpeaking = false;
+      });
+    } else {
+      setState(() {
+        _isSpeaking = true;
+      });
+      await TtsService.instance.speak(_word.word);
+      // 말하기가 끝나면 상태 업데이트
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        setState(() {
+          _isSpeaking = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _speakExample() async {
+    if (_word.exampleZh != null && _word.exampleZh!.isNotEmpty) {
+      await TtsService.instance.speak(_word.exampleZh!);
+    }
+  }
+
+  @override
+  void dispose() {
+    TtsService.instance.stop();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -101,24 +136,55 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                 ),
                 child: Column(
                   children: [
-                    Text(
-                      _word.word,
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onPrimary,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _word.word,
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          icon: Icon(
+                            _isSpeaking ? Icons.volume_up : Icons.volume_up_outlined,
+                            color: theme.colorScheme.onPrimary,
+                            size: 32,
+                          ),
+                          onPressed: _speakWord,
+                        ),
+                      ],
                     ),
-                    if (_word.hiragana != null &&
-                        _word.hiragana!.isNotEmpty &&
-                        _word.hiragana != _word.word)
+                    if (_word.pinyin.isNotEmpty)
                       Text(
-                        _word.hiragana!,
+                        _word.pinyin,
                         style: TextStyle(
                           fontSize: 24,
                           color: theme.colorScheme.onPrimary.withOpacity(0.9),
                         ),
                       ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        _word.level,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -162,16 +228,31 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
               ),
             ),
 
-            // Japanese Example
-            if (_word.exampleJp != null && _word.exampleJp!.isNotEmpty) ...[
+            // Chinese Example
+            if (_word.exampleZh != null && _word.exampleZh!.isNotEmpty) ...[
               const SizedBox(height: 24),
-              Text(
-                l10n.example,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                ),
+              Row(
+                children: [
+                  Text(
+                    l10n.example,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: Icon(
+                      Icons.volume_up_outlined,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    onPressed: _speakExample,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Card(
@@ -181,14 +262,14 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _word.exampleJp!,
+                        _word.exampleZh!,
                         style: const TextStyle(fontSize: 18),
                       ),
-                      if (_word.exampleReading != null &&
-                          _word.exampleReading!.isNotEmpty) ...[
+                      if (_word.examplePinyin != null &&
+                          _word.examplePinyin!.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
-                          _word.exampleReading!,
+                          _word.examplePinyin!,
                           style: TextStyle(
                             fontSize: 14,
                             color: theme.colorScheme.onSurface.withOpacity(0.7),
@@ -221,19 +302,6 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                 ),
               ),
             ],
-
-            // Category badge
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 8,
-              children: [
-                Chip(
-                  avatar: Text(CategoryList.icons[_word.category] ?? '📚'),
-                  label: Text(_word.category),
-                  backgroundColor: theme.colorScheme.surfaceVariant,
-                ),
-              ],
-            ),
           ],
         ),
       ),

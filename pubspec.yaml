@@ -31,6 +31,9 @@ dependencies:
   # Flip card animation
   flip_card: ^0.7.0
   
+  # Text-to-Speech
+  flutter_tts: ^4.2.0
+  
   # HTTP for translation API
   http: ^1.1.0
   

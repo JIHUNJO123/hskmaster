@@ -1,0 +1,74 @@
+[
+  {
+    "id": "HSK1",
+    "name_en": "HSK 1",
+    "name_ko": "HSK 1급",
+    "name_zh": "HSK 1级",
+    "name_vi": "HSK Cấp 1",
+    "description_en": "Basic Chinese - 150 words",
+    "description_ko": "기초 중국어 - 150개 단어",
+    "description_zh": "基础汉语 - 150个词汇",
+    "description_vi": "Tiếng Trung cơ bản - 150 từ",
+    "color": "#4CAF50"
+  },
+  {
+    "id": "HSK2",
+    "name_en": "HSK 2",
+    "name_ko": "HSK 2급",
+    "name_zh": "HSK 2级",
+    "name_vi": "HSK Cấp 2",
+    "description_en": "Elementary Chinese - 300 words",
+    "description_ko": "초급 중국어 - 300개 단어",
+    "description_zh": "初级汉语 - 300个词汇",
+    "description_vi": "Tiếng Trung sơ cấp - 300 từ",
+    "color": "#2196F3"
+  },
+  {
+    "id": "HSK3",
+    "name_en": "HSK 3",
+    "name_ko": "HSK 3급",
+    "name_zh": "HSK 3级",
+    "name_vi": "HSK Cấp 3",
+    "description_en": "Intermediate Chinese - 600 words",
+    "description_ko": "중급 중국어 - 600개 단어",
+    "description_zh": "中级汉语 - 600个词汇",
+    "description_vi": "Tiếng Trung trung cấp - 600 từ",
+    "color": "#FF9800"
+  },
+  {
+    "id": "HSK4",
+    "name_en": "HSK 4",
+    "name_ko": "HSK 4급",
+    "name_zh": "HSK 4级",
+    "name_vi": "HSK Cấp 4",
+    "description_en": "Upper-Intermediate Chinese - 1200 words",
+    "description_ko": "중상급 중국어 - 1200개 단어",
+    "description_zh": "中高级汉语 - 1200个词汇",
+    "description_vi": "Tiếng Trung trung-cao cấp - 1200 từ",
+    "color": "#F44336"
+  },
+  {
+    "id": "HSK5",
+    "name_en": "HSK 5",
+    "name_ko": "HSK 5급",
+    "name_zh": "HSK 5级",
+    "name_vi": "HSK Cấp 5",
+    "description_en": "Advanced Chinese - 2500 words",
+    "description_ko": "고급 중국어 - 2500개 단어",
+    "description_zh": "高级汉语 - 2500个词汇",
+    "description_vi": "Tiếng Trung nâng cao - 2500 từ",
+    "color": "#9C27B0"
+  },
+  {
+    "id": "HSK6",
+    "name_en": "HSK 6",
+    "name_ko": "HSK 6급",
+    "name_zh": "HSK 6级",
+    "name_vi": "HSK Cấp 6",
+    "description_en": "Superior Chinese - 5000+ words",
+    "description_ko": "최고급 중국어 - 5000개 이상의 단어",
+    "description_zh": "最高级汉语 - 5000+个词汇",
+    "description_vi": "Tiếng Trung cao cấp nhất - 5000+ từ",
+    "color": "#795548"
+  }
+]

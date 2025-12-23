@@ -68,6 +68,7 @@ flutter:
   assets:
     - assets/data/words.json
     - assets/data/categories.json
+    - assets/data/levels.json
     - assets/icon/
 
 

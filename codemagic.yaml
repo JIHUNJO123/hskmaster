@@ -43,7 +43,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.jihunjo.hskmaster
       vars:
-        APP_ID: 6740522730
+        APP_ID: 6756893592
       flutter: stable
       xcode: latest
       cocoapods: default

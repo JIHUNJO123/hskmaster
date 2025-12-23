@@ -8,8 +8,9 @@ import '../services/ad_service.dart';
 
 class QuizScreen extends StatefulWidget {
   final String? category;
+  final bool favoritesOnly;
 
-  const QuizScreen({super.key, this.category});
+  const QuizScreen({super.key, this.category, this.favoritesOnly = false});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -48,7 +49,9 @@ class _QuizScreenState extends State<QuizScreen> {
     final allWords = await DatabaseHelper.instance.getAllWords();
 
     List<Word> words;
-    if (widget.category != null) {
+    if (widget.favoritesOnly) {
+      words = await DatabaseHelper.instance.getFavorites();
+    } else if (widget.category != null) {
       words = await DatabaseHelper.instance.getWordsByLevel(widget.category!);
     } else {
       words = allWords;

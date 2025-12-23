@@ -518,6 +518,48 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     },
                   ),
+                  // 즐겨찾기 옵션
+                  ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.favorite, color: Colors.white),
+                    ),
+                    title: Text(l10n.favorites),
+                    subtitle: Text(
+                      l10n.savedWords,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (isFlashcard) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => const WordListScreen(
+                                  isFlashcardMode: true,
+                                  favoritesOnly: true,
+                                ),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    const QuizScreen(favoritesOnly: true),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   const Divider(),
                   // HSK 레벨별 옵션
                   ..._levels.map((level) {

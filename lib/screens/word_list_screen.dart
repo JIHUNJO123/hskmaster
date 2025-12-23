@@ -13,12 +13,14 @@ class WordListScreen extends StatefulWidget {
   final String? level;
   final String? levelName;
   final bool isFlashcardMode;
+  final bool favoritesOnly;
 
   const WordListScreen({
     super.key,
     this.level,
     this.levelName,
     this.isFlashcardMode = false,
+    this.favoritesOnly = false,
   });
 
   @override
@@ -142,7 +144,9 @@ class _WordListScreenState extends State<WordListScreen> {
 
   Future<void> _loadWords() async {
     List<Word> words;
-    if (widget.level != null) {
+    if (widget.favoritesOnly) {
+      words = await DatabaseHelper.instance.getFavorites();
+    } else if (widget.level != null) {
       words = await DatabaseHelper.instance.getWordsByLevel(widget.level!);
     } else {
       words = await DatabaseHelper.instance.getAllWords();

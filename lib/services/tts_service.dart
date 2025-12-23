@@ -34,9 +34,9 @@ class TtsService {
       // 저장된 설정 적용
       await _flutterTts.setSpeechRate(_speechRate);
       await _flutterTts.setVolume(_volume);
-      
-      // 음성 선택 (남자/여자)
-      // Android/iOS는 자동으로 선택된 언어의 기본 음성 사용
+
+      // 음성 성별 적용
+      await _applyVoiceGender();
 
       // iOS 설정
       await _flutterTts.setIosAudioCategory(
@@ -125,11 +125,98 @@ class TtsService {
   Future<void> setVoiceGender(bool isMale) async {
     try {
       _isMaleVoice = isMale;
-      // 음성 성별은 주로 시스템 기본 음성을 사용
-      // 일부 플랫폼에서는 pitch로 조절 가능
+      await _applyVoiceGender();
       await _saveSettings();
     } catch (e) {
       print('TTS set voice gender error: $e');
+    }
+  }
+
+  /// 음성 성별 적용 (중국어 음성 선택)
+  Future<void> _applyVoiceGender() async {
+    try {
+      // 먼저 pitch로 성별 차이 적용 (가장 확실한 방법)
+      // 남자: 낮은 pitch (0.8), 여자: 높은 pitch (1.2)
+      final pitch = _isMaleVoice ? 0.8 : 1.2;
+      await _flutterTts.setPitch(pitch);
+      print('Applied pitch: $pitch for ${_isMaleVoice ? "male" : "female"} voice');
+
+      // 추가로 음성 선택 시도
+      final voices = await _flutterTts.getVoices;
+      if (voices == null) {
+        print('No voices available');
+        return;
+      }
+
+      // 디버그: 모든 음성 출력
+      print('Available voices:');
+      for (var voice in (voices as List)) {
+        print('  - ${voice['name']} (${voice['locale']}) gender: ${voice['gender']}');
+      }
+
+      // 중국어 음성 필터링
+      final chineseVoices = (voices as List).where((voice) {
+        final locale = voice['locale']?.toString().toLowerCase() ?? '';
+        final name = voice['name']?.toString().toLowerCase() ?? '';
+        return locale.contains('zh') || 
+               locale.contains('cmn') || 
+               name.contains('chinese') ||
+               name.contains('mandarin');
+      }).toList();
+
+      print('Chinese voices found: ${chineseVoices.length}');
+      for (var voice in chineseVoices) {
+        print('  - ${voice['name']} (${voice['locale']}) gender: ${voice['gender']}');
+      }
+
+      if (chineseVoices.isEmpty) {
+        print('No Chinese voices found, using pitch only');
+        return;
+      }
+
+      // 남자/여자 음성 찾기
+      Map<String, dynamic>? selectedVoice;
+      
+      for (var voice in chineseVoices) {
+        final name = voice['name']?.toString().toLowerCase() ?? '';
+        final gender = voice['gender']?.toString().toLowerCase() ?? '';
+        
+        // 성별로 필터링
+        if (_isMaleVoice) {
+          if (gender == 'male' || name.contains('male') || 
+              name.contains('yunxi') || name.contains('yunyang') ||
+              name.contains('kangkang') || name.contains('yunjian')) {
+            selectedVoice = voice;
+            print('Found male voice: ${voice['name']}');
+            break;
+          }
+        } else {
+          if (gender == 'female' || name.contains('female') || 
+              name.contains('xiaoxiao') || name.contains('xiaoyi') ||
+              name.contains('yaoyao') || name.contains('huihui')) {
+            selectedVoice = voice;
+            print('Found female voice: ${voice['name']}');
+            break;
+          }
+        }
+      }
+
+      // 성별에 맞는 음성이 없으면 첫 번째 중국어 음성 사용
+      if (selectedVoice == null && chineseVoices.isNotEmpty) {
+        selectedVoice = chineseVoices.first;
+        print('Using first Chinese voice: ${selectedVoice?['name']}');
+      }
+
+      if (selectedVoice != null) {
+        await _flutterTts.setVoice({
+          "name": selectedVoice['name'],
+          "locale": selectedVoice['locale'],
+        });
+        
+        print('Selected voice: ${selectedVoice['name']}');
+      }
+    } catch (e) {
+      print('TTS apply voice gender error: $e');
     }
   }
 

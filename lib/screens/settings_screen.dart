@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../main.dart';
 import '../services/translation_service.dart';
@@ -78,10 +79,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // TTS Settings Section
-          _buildSectionHeader('TTS \uc124\uc815'),
+          _buildSectionHeader(l10n.voiceSettings),
           ListTile(
             leading: const Icon(Icons.speed),
-            title: const Text('\uc74c\uc131 \uc18d\ub3c4'),
+            title: Text(l10n.speechSpeed),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -102,18 +103,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.voice_chat),
-            title: const Text('l10n.voiceGender'),
+            title: Text(l10n.voiceGender),
             subtitle: SegmentedButton<bool>(
-              segments: const [
+              segments: [
                 ButtonSegment<bool>(
                   value: true,
-                  label: Text('l10n.maleVoice'),
-                  icon: Icon(Icons.man),
+                  label: Text(l10n.maleVoice),
+                  icon: const Icon(Icons.man),
                 ),
                 ButtonSegment<bool>(
                   value: false,
-                  label: Text('l10n.femaleVoice'),
-                  icon: Icon(Icons.woman),
+                  label: Text(l10n.femaleVoice),
+                  icon: const Icon(Icons.woman),
                 ),
               ],
               selected: {_isMaleVoice},
@@ -125,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.volume_up),
-            title: const Text('\ubcfc\ub968'),
+            title: Text(l10n.volume),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -146,15 +147,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.play_circle_outline),
-            title: const Text('\ud14c\uc2a4\ud2b8'),
-            subtitle: const Text(
-              '\"\u4f60\u597d\" \ub97c \ub4e4\uc5b4\ubcf4\uc138\uc694',
-            ),
+            title: Text(l10n.testVoice),
+            subtitle: Text(l10n.testVoiceDesc),
             trailing: ElevatedButton.icon(
               icon: const Icon(Icons.volume_up, size: 16),
-              label: const Text('\uc7ac\uc0dd'),
+              label: Text(l10n.playButton),
               onPressed: () async {
-                await TtsService.instance.speak('\u4f60\u597d');
+                await TtsService.instance.speak('你好');
               },
             ),
           ),
@@ -174,41 +173,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const Divider(),
 
-          // Ads Section
-          _buildSectionHeader(l10n.removeAds),
-          if (_adsRemoved)
-            ListTile(
-              leading: const Icon(Icons.check_circle, color: Colors.green),
-              title: Text(l10n.adsRemoved),
-              subtitle: Text(l10n.thankYou),
-            )
-          else ...[
-            ListTile(
-              leading: const Icon(Icons.block),
-              title: Text(l10n.removeAds),
-              subtitle: const Text('\$1.99'),
-              trailing: ElevatedButton(
-                onPressed: () => _purchaseAdRemoval(),
-                child: Text(l10n.buy),
+          // Ads Section (웹에서는 숨김)
+          if (!kIsWeb) ...[
+            _buildSectionHeader(l10n.removeAds),
+            if (_adsRemoved)
+              ListTile(
+                leading: const Icon(Icons.check_circle, color: Colors.green),
+                title: Text(l10n.adsRemoved),
+                subtitle: Text(l10n.thankYou),
+              )
+            else ...[
+              ListTile(
+                leading: const Icon(Icons.block),
+                title: Text(l10n.removeAds),
+                subtitle: const Text('\$1.99'),
+                trailing: ElevatedButton(
+                  onPressed: () => _purchaseAdRemoval(),
+                  child: Text(l10n.buy),
+                ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.restore),
-              title: Text(l10n.restorePurchase),
-              subtitle: Text(l10n.restorePurchaseDesc),
-              trailing:
-                  _isRestoring
-                      ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : null,
-              onTap: _isRestoring ? null : _restorePurchase,
-            ),
+              ListTile(
+                leading: const Icon(Icons.restore),
+                title: Text(l10n.restorePurchase),
+                subtitle: Text(l10n.restorePurchaseDesc),
+                trailing:
+                    _isRestoring
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : null,
+                onTap: _isRestoring ? null : _restorePurchase,
+              ),
+            ],
+            const Divider(),
           ],
-
-          const Divider(),
 
           // Info Section
           _buildSectionHeader(l10n.info),
@@ -333,5 +333,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-
-

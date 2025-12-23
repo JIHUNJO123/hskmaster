@@ -174,10 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // HSK Levels
                   const Text(
                     'HSK Levels',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   _buildLevelCards(),
@@ -340,25 +337,14 @@ class _HomeScreenState extends State<HomeScreen> {
         'title': l10n.flashcard,
         'subtitle': l10n.cardLearning,
         'color': Colors.orange,
-        'onTap':
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => const WordListScreen(isFlashcardMode: true),
-              ),
-            ),
+        'onTap': () => _showLevelSelectionDialog(isFlashcard: true),
       },
       {
         'icon': Icons.quiz,
         'title': l10n.quiz,
         'subtitle': l10n.testYourself,
         'color': Colors.green,
-        'onTap':
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const QuizScreen()),
-            ),
+        'onTap': () => _showLevelSelectionDialog(isFlashcard: false),
       },
     ];
 
@@ -433,8 +419,10 @@ class _HomeScreenState extends State<HomeScreen> {
       itemBuilder: (context, index) {
         final level = _levels[index];
         final hskLevel = HskLevel.fromString(level.id);
-        final levelColor = Color(int.parse(level.color.replaceFirst('#', '0xFF')));
-        
+        final levelColor = Color(
+          int.parse(level.color.replaceFirst('#', '0xFF')),
+        );
+
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
@@ -476,6 +464,127 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showLevelSelectionDialog({required bool isFlashcard}) {
+    final l10n = AppLocalizations.of(context)!;
+    final langCode = TranslationService.instance.currentLanguage;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(isFlashcard ? l10n.flashcard : l10n.quiz),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  // 전체 단어 옵션
+                  ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.all_inclusive,
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Text(l10n.allWords),
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (isFlashcard) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    const WordListScreen(isFlashcardMode: true),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const QuizScreen(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  const Divider(),
+                  // HSK 레벨별 옵션
+                  ..._levels.map((level) {
+                    final hskLevel = HskLevel.fromString(level.id);
+                    final levelColor = Color(
+                      int.parse(level.color.replaceFirst('#', '0xFF')),
+                    );
+
+                    return ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: levelColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${hskLevel.number}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      title: Text(level.getName(langCode)),
+                      subtitle: Text(
+                        level.getDescription(langCode) ?? '',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        if (isFlashcard) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => WordListScreen(
+                                    level: level.id,
+                                    levelName: level.getName(langCode),
+                                    isFlashcardMode: true,
+                                  ),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => QuizScreen(category: level.id),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  }),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+            ],
+          ),
     );
   }
 }

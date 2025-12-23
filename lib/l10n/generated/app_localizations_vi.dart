@@ -323,4 +323,10 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get byHSKLevel => 'Theo cấp HSK';
+
+  @override
+  String get cancel => 'Hủy';
+
+  @override
+  String get selectLevel => 'Chọn cấp độ';
 }

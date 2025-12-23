@@ -103,5 +103,7 @@
   "testVoice": "Probar",
   "testVoiceDesc": "Escuchar \"你好\"",
   "playButton": "Reproducir",
-  "byHSKLevel": "Por nivel HSK"
+  "byHSKLevel": "Por nivel HSK",
+  "cancel": "Cancelar",
+  "selectLevel": "Seleccionar nivel"
 }

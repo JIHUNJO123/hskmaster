@@ -323,4 +323,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get byHSKLevel => 'Por nivel HSK';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get selectLevel => 'Seleccionar nivel';
 }

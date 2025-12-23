@@ -323,4 +323,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get byHSKLevel => 'HSKレベル順';
+
+  @override
+  String get cancel => 'キャンセル';
+
+  @override
+  String get selectLevel => 'レベルを選択';
 }

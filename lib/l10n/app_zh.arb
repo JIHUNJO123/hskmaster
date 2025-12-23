@@ -101,5 +101,7 @@
   "testVoice": "测试",
   "testVoiceDesc": "听一下 \"你好\"",
   "playButton": "播放",
-  "byHSKLevel": "按HSK等级"
+  "byHSKLevel": "按HSK等级",
+  "cancel": "取消",
+  "selectLevel": "选择等级"
 }

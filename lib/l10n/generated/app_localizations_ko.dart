@@ -323,4 +323,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get byHSKLevel => 'HSK 급수순';
+
+  @override
+  String get cancel => '취소';
+
+  @override
+  String get selectLevel => '급수 선택';
 }

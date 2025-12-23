@@ -323,4 +323,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get byHSKLevel => '按HSK等级';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get selectLevel => '选择等级';
 }

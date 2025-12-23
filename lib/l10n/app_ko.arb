@@ -101,5 +101,7 @@
   "testVoice": "테스트",
   "testVoiceDesc": "\"你好\" 를 들어보세요",
   "playButton": "재생",
-  "byHSKLevel": "HSK 급수순"
+  "byHSKLevel": "HSK 급수순",
+  "cancel": "취소",
+  "selectLevel": "급수 선택"
 }

@@ -117,5 +117,7 @@
   "testVoice": "テスト",
   "testVoiceDesc": "「你好」を聞く",
   "playButton": "再生",
-  "byHSKLevel": "HSKレベル順"
+  "byHSKLevel": "HSKレベル順",
+  "cancel": "キャンセル",
+  "selectLevel": "レベルを選択"
 }

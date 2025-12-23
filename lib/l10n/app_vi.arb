@@ -103,5 +103,7 @@
   "testVoice": "Thử nghiệm",
   "testVoiceDesc": "Nghe \"你好\"",
   "playButton": "Phát",
-  "byHSKLevel": "Theo cấp HSK"
+  "byHSKLevel": "Theo cấp HSK",
+  "cancel": "Hủy",
+  "selectLevel": "Chọn cấp độ"
 }

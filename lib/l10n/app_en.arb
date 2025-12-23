@@ -117,5 +117,7 @@
   "testVoice": "Test",
   "testVoiceDesc": "Listen to \"你好\"",
   "playButton": "Play",
-  "byHSKLevel": "By HSK Level"
+  "byHSKLevel": "By HSK Level",
+  "cancel": "Cancel",
+  "selectLevel": "Select Level"
 }

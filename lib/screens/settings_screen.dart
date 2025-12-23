@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../main.dart';
 import '../services/translation_service.dart';
@@ -250,6 +250,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final currentLang = TranslationService.instance.currentLanguage;
 
+    // 중국어 간체 제거 - 영어, 한국어, 베트남어, 스페인어만 지원
+    final supportedLangs = TranslationService.supportedLanguages
+        .where((lang) => lang.code != 'zh')
+        .toList();
+
     showDialog(
       context: context,
       builder:
@@ -258,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children:
-                  TranslationService.supportedLanguages.map((lang) {
+                  supportedLangs.map((lang) {
                     return RadioListTile<String>(
                       title: Text(lang.nativeName),
                       subtitle: Text(lang.name),
@@ -325,3 +330,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
+
+

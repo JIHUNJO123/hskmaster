@@ -106,5 +106,12 @@
   "showPinyinInList": "Show Pinyin in Word List",
   "showPinyinInListDesc": "Display pinyin above Chinese characters in word list",
   "search": "Search",
-  "searchHint": "Search words..."
+  "searchHint": "Search words...",
+  "voiceSettings": "Voice Settings",
+  "speechSpeed": "Speech Speed",
+  "speechPitch": "Speech Pitch",
+  "volume": "Volume",
+  "testVoice": "Test",
+  "testVoiceDesc": "Listen to \"你好\"",
+  "playButton": "Play"
 }

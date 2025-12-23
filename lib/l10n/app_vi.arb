@@ -92,5 +92,12 @@
   "showPinyinInList": "Hiện pinyin trong danh sách",
   "showPinyinInListDesc": "Hiển thị pinyin trên chữ Hán trong danh sách từ",
   "search": "Tìm kiếm",
-  "searchHint": "Tìm từ vựng..."
+  "searchHint": "Tìm từ vựng...",
+  "voiceSettings": "Cài đặt giọng nói",
+  "speechSpeed": "Tốc độ giọng nói",
+  "speechPitch": "Cao độ giọng nói",
+  "volume": "Âm lượng",
+  "testVoice": "Thử nghiệm",
+  "testVoiceDesc": "Nghe \"你好\"",
+  "playButton": "Phát"
 }

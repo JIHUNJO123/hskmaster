@@ -90,5 +90,12 @@
   "showPinyinInList": "在单词列表中显示拼音",
   "showPinyinInListDesc": "在单词列表中的汉字上方显示拼音",
   "search": "搜索",
-  "searchHint": "搜索单词..."
+  "searchHint": "搜索单词...",
+  "voiceSettings": "语音设置",
+  "speechSpeed": "语速",
+  "speechPitch": "音调",
+  "volume": "音量",
+  "testVoice": "测试",
+  "testVoiceDesc": "听一下 \"你好\"",
+  "playButton": "播放"
 }

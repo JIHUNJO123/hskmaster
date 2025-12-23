@@ -90,5 +90,12 @@
   "showPinyinInList": "단어 목록에 병음 표시",
   "showPinyinInListDesc": "단어 목록에서 한자 위에 병음 표시",
   "search": "검색",
-  "searchHint": "단어 검색..."
+  "searchHint": "단어 검색...",
+  "voiceSettings": "음성 설정",
+  "speechSpeed": "음성 속도",
+  "speechPitch": "음성 톤",
+  "volume": "볼륨",
+  "testVoice": "테스트",
+  "testVoiceDesc": "\"你好\" 를 들어보세요",
+  "playButton": "재생"
 }

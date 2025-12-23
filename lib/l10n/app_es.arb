@@ -92,5 +92,12 @@
   "showPinyinInList": "Mostrar pinyin en la lista",
   "showPinyinInListDesc": "Mostrar pinyin sobre caracteres chinos en la lista de palabras",
   "search": "Buscar",
-  "searchHint": "Buscar palabras..."
+  "searchHint": "Buscar palabras...",
+  "voiceSettings": "Configuración de voz",
+  "speechSpeed": "Velocidad de habla",
+  "speechPitch": "Tono de voz",
+  "volume": "Volumen",
+  "testVoice": "Probar",
+  "testVoiceDesc": "Escuchar \"你好\"",
+  "playButton": "Reproducir"
 }

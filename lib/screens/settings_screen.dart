@@ -19,7 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isRestoring = false;
   double _speechRate = 0.5;
   double _volume = 1.0;
-  bool _isMaleVoice = true;
+  bool _isMaleVoice = false; // 여자 음성만 사용
 
   @override
   void initState() {
@@ -101,29 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.voice_chat),
-            title: Text(l10n.voiceGender),
-            subtitle: SegmentedButton<bool>(
-              segments: [
-                ButtonSegment<bool>(
-                  value: true,
-                  label: Text(l10n.maleVoice),
-                  icon: const Icon(Icons.man),
-                ),
-                ButtonSegment<bool>(
-                  value: false,
-                  label: Text(l10n.femaleVoice),
-                  icon: const Icon(Icons.woman),
-                ),
-              ],
-              selected: {_isMaleVoice},
-              onSelectionChanged: (Set<bool> selected) async {
-                setState(() => _isMaleVoice = selected.first);
-                await TtsService.instance.setVoiceGender(selected.first);
-              },
-            ),
-          ),
+
           ListTile(
             leading: const Icon(Icons.volume_up),
             title: Text(l10n.volume),

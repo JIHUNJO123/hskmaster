@@ -11,9 +11,9 @@ class TtsService {
   bool _isInitialized = false;
 
   // 기본 설정
-  double _speechRate = 0.5; // 0.0 ~ 1.0 (느림 ~ 빠름)
+  double _speechRate = 0.5; // 0.0 ~ 1.0 (느림 ~ 빠름), 실제 적용은 0.0 ~ 0.5
   double _volume = 1.0; // 0.0 ~ 1.0 (소리 크기)
-  bool _isMaleVoice = true; // true: 남자 음성, false: 여자 음성
+  bool _isMaleVoice = false; // 여자 음성만 사용
 
   // Getters
   double get speechRate => _speechRate;
@@ -31,8 +31,8 @@ class TtsService {
       // 중국어 간체 설정
       await _flutterTts.setLanguage("zh-CN");
 
-      // 저장된 설정 적용
-      await _flutterTts.setSpeechRate(_speechRate);
+      // 저장된 설정 적용 (속도는 0.5배로 적용하여 너무 빠르지 않게)
+      await _flutterTts.setSpeechRate(_speechRate * 0.5);
       await _flutterTts.setVolume(_volume);
 
       // 음성 성별 적용
@@ -110,11 +110,11 @@ class TtsService {
     }
   }
 
-  /// 말하기 속도 설정 (0.0 ~ 1.0)
+  /// 말하기 속도 설정 (0.0 ~ 1.0, 실제 적용은 0.0 ~ 0.5)
   Future<void> setSpeechRate(double rate) async {
     try {
       _speechRate = rate.clamp(0.0, 1.0);
-      await _flutterTts.setSpeechRate(_speechRate);
+      await _flutterTts.setSpeechRate(_speechRate * 0.5); // 0.5배로 적용
       await _saveSettings();
     } catch (e) {
       print('TTS set speech rate error: $e');

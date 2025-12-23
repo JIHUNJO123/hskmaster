@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSK Master - Master Chinese Vocabulary for HSK Exam Success</title>
+    <meta name="description" content="HSK Master - The ultimate Chinese vocabulary app for HSK exam preparation. Master 5000+ essential words from HSK 1 to HSK 6 with flashcards, multi-language support, and offline learning.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .download-buttons {
+            margin-top: 30px;
+        }
+        .download-buttons a {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        .download-buttons a:hover {
+            transform: scale(1.05);
+        }
+        .features {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        .features h2 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 60px;
+            color: #2c3e50;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        .feature-card {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .stats-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+        .stat-item {
+            padding: 20px;
+        }
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 10px;
+        }
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🎓 HSK Master</h1>
+        <p>HSK 시험 합격을 위한 완벽한 중국어 단어 학습 앱</p>
+        <p>체계적인 학습으로 HSK 1급부터 6급까지 정복하세요!</p>
+        
+        <div class="download-buttons">
+            <a href="https://play.google.com/store/apps/details?id=com.jihunjo.hskmaster">📱 Google Play</a>
+            <a href="https://apps.apple.com/app/hsk-master">🍎 App Store</a>
+        </div>
+    </div>
+
+    <div class="features">
+        <h2>주요 기능</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>레벨별 학습</h3>
+                <p>HSK 1급부터 6급까지 레벨별로 구성된 필수 어휘를 체계적으로 학습할 수 있습니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>플래시카드</h3>
+                <p>효과적인 플래시카드 기능으로 단어를 빠르게 암기하고 복습할 수 있습니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌏</div>
+                <h3>다국어 지원</h3>
+                <p>한국어, 영어, 일본어 등 다양한 언어로 번역을 제공하여 효과적인 학습을 돕습니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>진도 추적</h3>
+                <p>학습한 단어와 진도를 자동으로 추적하여 학습 현황을 한눈에 파악할 수 있습니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">✈️</div>
+                <h3>오프라인 학습</h3>
+                <p>인터넷 연결 없이도 언제 어디서나 중국어 단어를 학습할 수 있습니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>깔끔한 디자인</h3>
+                <p>직관적이고 사용하기 편한 인터페이스로 학습에만 집중할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <h2 style="margin-bottom: 50px; color: #2c3e50;">HSK Master와 함께</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">5,000+</div>
+                <div class="stat-label">필수 단어</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">6</div>
+                <div class="stat-label">HSK 레벨</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">지원 언어</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">오프라인 학습</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <h3>HSK Master</h3>
+        <p style="margin: 20px 0;">당신의 HSK 시험 합격을 응원합니다! 🎉</p>
+        <p>
+            <a href="privacy.html">개인정보처리방침</a> | 
+            <a href="support.html">고객 지원</a> | 
+            <a href="mailto:jihun.jo@yahoo.com">문의하기</a>
+        </p>
+        <p style="margin-top: 20px; color: #95a5a6;">
+            © 2025 HSK Master. All rights reserved.
+        </p>
+    </footer>
+</body>
+</html>

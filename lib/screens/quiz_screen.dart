@@ -4,6 +4,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../db/database_helper.dart';
 import '../models/word.dart';
 import '../services/translation_service.dart';
+import '../services/ad_service.dart';
 
 class QuizScreen extends StatefulWidget {
   final String? category;
@@ -31,6 +32,15 @@ class _QuizScreenState extends State<QuizScreen> {
   void initState() {
     super.initState();
     _loadWords();
+    _loadInterstitialAd();
+  }
+
+  Future<void> _loadInterstitialAd() async {
+    final adService = AdService.instance;
+    await adService.initialize();
+    if (!adService.adsRemoved) {
+      await adService.loadInterstitialAd();
+    }
   }
 
   Future<void> _loadWords() async {
@@ -78,8 +88,10 @@ class _QuizScreenState extends State<QuizScreen> {
       } else if (order == 'byLevel') {
         // HSK 레벨순 정렬 (HSK1 -> HSK2 -> ... -> HSK6)
         _words.sort((a, b) {
-          final levelA = int.tryParse(a.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-          final levelB = int.tryParse(b.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          final levelA =
+              int.tryParse(a.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          final levelB =
+              int.tryParse(b.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
           if (levelA != levelB) return levelA.compareTo(levelB);
           return a.word.compareTo(b.word); // 같은 레벨 내에서는 알파벳순
         });
@@ -153,7 +165,7 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
-  void _showResults() {
+  Future<void> _showResults() async {
     final l10n = AppLocalizations.of(context)!;
     final percentage = (_score / _words.length * 100).round();
     String message;
@@ -167,6 +179,9 @@ class _QuizScreenState extends State<QuizScreen> {
     } else {
       message = l10n.keepPracticing;
     }
+
+    // 퀴즈 완료 시 전면광고 표시
+    await AdService.instance.showInterstitialAd();
 
     showDialog(
       context: context,
@@ -260,7 +275,9 @@ class _QuizScreenState extends State<QuizScreen> {
               final allWords = await DatabaseHelper.instance.getAllWords();
               List<Word> words;
               if (widget.category != null) {
-                words = await DatabaseHelper.instance.getWordsByLevel(widget.category!);
+                words = await DatabaseHelper.instance.getWordsByLevel(
+                  widget.category!,
+                );
               } else {
                 words = List.from(allWords);
               }
@@ -269,53 +286,57 @@ class _QuizScreenState extends State<QuizScreen> {
               });
               _sortWords(order);
             },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'alphabetical',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.sort_by_alpha,
-                      color: _sortOrder == 'alphabetical'
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
+            itemBuilder:
+                (context) => [
+                  PopupMenuItem(
+                    value: 'alphabetical',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.sort_by_alpha,
+                          color:
+                              _sortOrder == 'alphabetical'
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(l10n.alphabetical),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(l10n.alphabetical),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'random',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.shuffle,
-                      color: _sortOrder == 'random'
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
+                  ),
+                  PopupMenuItem(
+                    value: 'random',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.shuffle,
+                          color:
+                              _sortOrder == 'random'
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(l10n.random),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(l10n.random),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'byLevel',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.stairs,
-                      color: _sortOrder == 'byLevel'
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
+                  ),
+                  PopupMenuItem(
+                    value: 'byLevel',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.stairs,
+                          color:
+                              _sortOrder == 'byLevel'
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(l10n.byHSKLevel),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(l10n.byHSKLevel),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
           ),
           Center(
             child: Padding(

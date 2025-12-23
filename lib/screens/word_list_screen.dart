@@ -39,6 +39,7 @@ class _WordListScreenState extends State<WordListScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   Map<int, String> _translatedDefinitions = {};
+  bool _hasShownLevelAd = false; // 레벨 진입 시 광고 표시 여부
 
   // 스크롤/플래시카드 위치 저장용 키
   String get _scrollPositionKey =>
@@ -54,6 +55,22 @@ class _WordListScreenState extends State<WordListScreen> {
     _loadWords();
     _loadBannerAd();
     _loadSettings();
+    _showLevelEntryAd();
+  }
+
+  // 레벨 진입 시 전면광고 (특정 레벨 선택 시)
+  Future<void> _showLevelEntryAd() async {
+    if (widget.level != null && !_hasShownLevelAd) {
+      _hasShownLevelAd = true;
+      final adService = AdService.instance;
+      await adService.initialize();
+      if (!adService.adsRemoved) {
+        await adService.loadInterstitialAd();
+        // 약간의 지연 후 표시 (화면 전환 완료 후)
+        await Future.delayed(const Duration(milliseconds: 500));
+        await adService.showInterstitialAd();
+      }
+    }
   }
 
   Future<void> _initFlashcardPosition() async {
@@ -182,8 +199,10 @@ class _WordListScreenState extends State<WordListScreen> {
       } else if (order == 'byLevel') {
         // HSK 레벨순 정렬 (HSK1 -> HSK2 -> ... -> HSK6)
         _words.sort((a, b) {
-          final levelA = int.tryParse(a.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-          final levelB = int.tryParse(b.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          final levelA =
+              int.tryParse(a.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          final levelB =
+              int.tryParse(b.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
           if (levelA != levelB) return levelA.compareTo(levelB);
           return a.word.compareTo(b.word); // 같은 레벨 내에서는 알파벳순
         });
@@ -491,9 +510,18 @@ class _WordListScreenState extends State<WordListScreen> {
           child: PageView.builder(
             controller: _pageController,
             itemCount: words.length,
-            onPageChanged: (index) {
+            onPageChanged: (index) async {
               setState(() => _currentFlashcardIndex = index);
               _saveFlashcardPosition(index);
+              // 마지막 카드 도달 시 전면광고
+              if (index == words.length - 1) {
+                final adService = AdService.instance;
+                if (!adService.adsRemoved) {
+                  await adService.loadInterstitialAd();
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  await adService.showInterstitialAd();
+                }
+              }
             },
             itemBuilder: (context, index) {
               final word = words[index];

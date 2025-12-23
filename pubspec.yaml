@@ -2,7 +2,7 @@ name: hsk_vocab_app
 description: "HSK Master - Master Chinese vocabulary for HSK exam success"
 publish_to: 'none'
 
-version: 1.0.9+10
+version: 1.0.10+11
 
 environment:
   sdk: ^3.7.0

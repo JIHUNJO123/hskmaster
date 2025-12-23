@@ -125,11 +125,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (word.hiragana != null &&
-                                word.hiragana!.isNotEmpty &&
-                                word.hiragana != word.word)
+                            if (word.pinyin.isNotEmpty)
                               Text(
-                                word.hiragana!,
+                                word.pinyin,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                 ),

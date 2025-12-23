@@ -38,9 +38,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
     List<Word> words;
     if (widget.category != null) {
-      words = await DatabaseHelper.instance.getWordsByCategory(
-        widget.category!,
-      );
+      words = await DatabaseHelper.instance.getWordsByLevel(widget.category!);
     } else {
       words = allWords;
     }
@@ -276,11 +274,9 @@ class _QuizScreenState extends State<QuizScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (currentWord.hiragana != null &&
-                          currentWord.hiragana!.isNotEmpty &&
-                          currentWord.hiragana != currentWord.word)
+                      if (currentWord.pinyin.isNotEmpty)
                         Text(
-                          currentWord.hiragana!,
+                          currentWord.pinyin,
                           style: TextStyle(
                             fontSize: 18,
                             color: theme.colorScheme.primary,

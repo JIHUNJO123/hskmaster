@@ -150,7 +150,9 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         const SizedBox(width: 16),
                         IconButton(
                           icon: Icon(
-                            _isSpeaking ? Icons.volume_up : Icons.volume_up_outlined,
+                            _isSpeaking
+                                ? Icons.volume_up
+                                : Icons.volume_up_outlined,
                             color: theme.colorScheme.onPrimary,
                             size: 32,
                           ),

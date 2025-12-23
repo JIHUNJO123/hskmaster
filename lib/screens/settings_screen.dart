@@ -4,6 +4,7 @@ import '../main.dart';
 import '../services/translation_service.dart';
 import '../services/purchase_service.dart';
 import '../services/ad_service.dart';
+import '../services/tts_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,11 +16,24 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _adsRemoved = false;
   bool _isRestoring = false;
+  double _speechRate = 0.5;
+  double _pitch = 1.0;
+  double _volume = 1.0;
 
   @override
   void initState() {
     super.initState();
     _checkAdsStatus();
+    _loadTtsSettings();
+  }
+
+  Future<void> _loadTtsSettings() async {
+    await TtsService.instance.init();
+    setState(() {
+      _speechRate = TtsService.instance.speechRate;
+      _pitch = TtsService.instance.pitch;
+      _volume = TtsService.instance.volume;
+    });
   }
 
   Future<void> _checkAdsStatus() async {
@@ -63,6 +77,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         children: [
+          // TTS Settings Section
+          _buildSectionHeader('TTS \uc124\uc815'),
+          ListTile(
+            leading: const Icon(Icons.speed),
+            title: const Text('\uc74c\uc131 \uc18d\ub3c4'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${(_speechRate * 100).toInt()}%'),
+                Slider(
+                  value: _speechRate,
+                  min: 0.1,
+                  max: 1.0,
+                  divisions: 9,
+                  label: '${(_speechRate * 100).toInt()}%',
+                  onChanged: (value) async {
+                    setState(() => _speechRate = value);
+                    await TtsService.instance.setSpeechRate(value);
+                  },
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.graphic_eq),
+            title: const Text('\uc74c\uc131 \ud1a4'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${_pitch.toStringAsFixed(1)}'),
+                Slider(
+                  value: _pitch,
+                  min: 0.5,
+                  max: 2.0,
+                  divisions: 15,
+                  label: _pitch.toStringAsFixed(1),
+                  onChanged: (value) async {
+                    setState(() => _pitch = value);
+                    await TtsService.instance.setPitch(value);
+                  },
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.volume_up),
+            title: const Text('\ubcfc\ub968'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${(_volume * 100).toInt()}%'),
+                Slider(
+                  value: _volume,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 10,
+                  label: '${(_volume * 100).toInt()}%',
+                  onChanged: (value) async {
+                    setState(() => _volume = value);
+                    await TtsService.instance.setVolume(value);
+                  },
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.play_circle_outline),
+            title: const Text('\ud14c\uc2a4\ud2b8'),
+            subtitle: const Text(
+              '\"\u4f60\u597d\" \ub97c \ub4e4\uc5b4\ubcf4\uc138\uc694',
+            ),
+            trailing: ElevatedButton.icon(
+              icon: const Icon(Icons.volume_up, size: 16),
+              label: const Text('\uc7ac\uc0dd'),
+              onPressed: () async {
+                await TtsService.instance.speak('\u4f60\u597d');
+              },
+            ),
+          ),
+
+          const Divider(),
           // Language Section
           _buildSectionHeader(l10n.language),
           ListTile(

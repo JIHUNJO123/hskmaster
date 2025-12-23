@@ -77,11 +77,11 @@ class AdService {
       return;
     }
 
-    // JLPT Step N5–N3 AdMob App ID
+    // HSK Master AdMob App ID
     final appId =
         Platform.isAndroid
-            ? 'ca-app-pub-5837885590326347~5763133926' // Android
-            : 'ca-app-pub-5837885590326347~8197725571'; // iOS
+            ? 'ca-app-pub-5837885590326347~8904178878' // Android
+            : 'ca-app-pub-5837885590326347~1276329661'; // iOS
 
     await MobileAds.instance.initialize();
     _isInitialized = true;

@@ -1,30 +1,40 @@
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// TTS 서비스 (중국어 음성 지원)
 class TtsService {
   static final TtsService instance = TtsService._internal();
-  
+
   TtsService._internal();
 
   final FlutterTts _flutterTts = FlutterTts();
   bool _isInitialized = false;
+
+  // 기본 설정
+  double _speechRate = 0.5; // 0.0 ~ 1.0 (느림 ~ 빠름)
+  double _pitch = 1.0; // 0.5 ~ 2.0 (낮음 ~ 높음)
+  double _volume = 1.0; // 0.0 ~ 1.0 (소리 크기)
+
+  // Getters
+  double get speechRate => _speechRate;
+  double get pitch => _pitch;
+  double get volume => _volume;
 
   /// TTS 초기화
   Future<void> init() async {
     if (_isInitialized) return;
 
     try {
+      // 저장된 설정 로드
+      await _loadSettings();
+
       // 중국어 간체 설정
       await _flutterTts.setLanguage("zh-CN");
-      
-      // 음성 톤 (1.0이 기본)
-      await _flutterTts.setPitch(1.0);
-      
-      // 말하기 속도 (0.5 = 느리게, 1.0 = 보통)
-      await _flutterTts.setSpeechRate(0.5);
-      
-      // 볼륨 (0.0 ~ 1.0)
-      await _flutterTts.setVolume(1.0);
+
+      // 저장된 설정 적용
+      await _flutterTts.setPitch(_pitch);
+      await _flutterTts.setSpeechRate(_speechRate);
+      await _flutterTts.setVolume(_volume);
 
       // iOS 설정
       await _flutterTts.setIosAudioCategory(
@@ -40,6 +50,30 @@ class TtsService {
       _isInitialized = true;
     } catch (e) {
       print('TTS initialization error: $e');
+    }
+  }
+
+  /// 저장된 설정 로드
+  Future<void> _loadSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _speechRate = prefs.getDouble('tts_speech_rate') ?? 0.5;
+      _pitch = prefs.getDouble('tts_pitch') ?? 1.0;
+      _volume = prefs.getDouble('tts_volume') ?? 1.0;
+    } catch (e) {
+      print('TTS load settings error: $e');
+    }
+  }
+
+  /// 설정 저장
+  Future<void> _saveSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('tts_speech_rate', _speechRate);
+      await prefs.setDouble('tts_pitch', _pitch);
+      await prefs.setDouble('tts_volume', _volume);
+    } catch (e) {
+      print('TTS save settings error: $e');
     }
   }
 
@@ -77,7 +111,9 @@ class TtsService {
   /// 말하기 속도 설정 (0.0 ~ 1.0)
   Future<void> setSpeechRate(double rate) async {
     try {
-      await _flutterTts.setSpeechRate(rate);
+      _speechRate = rate.clamp(0.0, 1.0);
+      await _flutterTts.setSpeechRate(_speechRate);
+      await _saveSettings();
     } catch (e) {
       print('TTS set speech rate error: $e');
     }
@@ -86,9 +122,22 @@ class TtsService {
   /// 음성 톤 설정 (0.5 ~ 2.0)
   Future<void> setPitch(double pitch) async {
     try {
-      await _flutterTts.setPitch(pitch);
+      _pitch = pitch.clamp(0.5, 2.0);
+      await _flutterTts.setPitch(_pitch);
+      await _saveSettings();
     } catch (e) {
       print('TTS set pitch error: $e');
+    }
+  }
+
+  /// 볼륨 설정 (0.0 ~ 1.0)
+  Future<void> setVolume(double volume) async {
+    try {
+      _volume = volume.clamp(0.0, 1.0);
+      await _flutterTts.setVolume(_volume);
+      await _saveSettings();
+    } catch (e) {
+      print('TTS set volume error: $e');
     }
   }
 

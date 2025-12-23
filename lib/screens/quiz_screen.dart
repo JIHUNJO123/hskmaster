@@ -25,6 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   List<Word> _currentOptions = [];
   bool _isWordToMeaning = true;
   Map<int, String> _translatedDefinitions = {};
+  String _sortOrder = 'random'; // 정렬 순서: random, alphabetical, byLevel
 
   @override
   void initState() {
@@ -59,14 +60,37 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     }
 
-    // Shuffle and limit to 10 questions
-    words.shuffle();
-    words = words.take(10).toList();
-
     setState(() {
       _allWords = allWords;
       _words = words;
       _isLoading = false;
+      _sortWords(_sortOrder);
+    });
+  }
+
+  void _sortWords(String order) {
+    setState(() {
+      _sortOrder = order;
+      if (order == 'alphabetical') {
+        _words.sort((a, b) => a.word.compareTo(b.word));
+      } else if (order == 'random') {
+        _words.shuffle();
+      } else if (order == 'byLevel') {
+        // HSK 레벨순 정렬 (HSK1 -> HSK2 -> ... -> HSK6)
+        _words.sort((a, b) {
+          final levelA = int.tryParse(a.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          final levelB = int.tryParse(b.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          if (levelA != levelB) return levelA.compareTo(levelB);
+          return a.word.compareTo(b.word); // 같은 레벨 내에서는 알파벳순
+        });
+      }
+      // 10개로 제한
+      _words = _words.take(10).toList();
+      // 퀴즈 리셋
+      _currentQuestionIndex = 0;
+      _score = 0;
+      _answered = false;
+      _selectedAnswer = null;
       _generateOptions();
     });
   }
@@ -229,6 +253,70 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: Text(l10n.quiz),
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.sort),
+            onSelected: (order) async {
+              // 정렬 변경 시 단어 다시 로드
+              final allWords = await DatabaseHelper.instance.getAllWords();
+              List<Word> words;
+              if (widget.category != null) {
+                words = await DatabaseHelper.instance.getWordsByLevel(widget.category!);
+              } else {
+                words = List.from(allWords);
+              }
+              setState(() {
+                _words = words;
+              });
+              _sortWords(order);
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'alphabetical',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.sort_by_alpha,
+                      color: _sortOrder == 'alphabetical'
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(l10n.alphabetical),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'random',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.shuffle,
+                      color: _sortOrder == 'random'
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(l10n.random),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'byLevel',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.stairs,
+                      color: _sortOrder == 'byLevel'
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(l10n.byHSKLevel),
+                  ],
+                ),
+              ),
+            ],
+          ),
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16),

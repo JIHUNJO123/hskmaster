@@ -320,4 +320,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get playButton => 'Phát';
+
+  @override
+  String get byHSKLevel => 'Theo cấp HSK';
 }

@@ -102,5 +102,6 @@
   "volume": "Volumen",
   "testVoice": "Probar",
   "testVoiceDesc": "Escuchar \"你好\"",
-  "playButton": "Reproducir"
+  "playButton": "Reproducir",
+  "byHSKLevel": "Por nivel HSK"
 }

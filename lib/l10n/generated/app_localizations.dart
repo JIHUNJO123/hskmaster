@@ -718,6 +718,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play'**
   String get playButton;
+
+  /// No description provided for @byHSKLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'By HSK Level'**
+  String get byHSKLevel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

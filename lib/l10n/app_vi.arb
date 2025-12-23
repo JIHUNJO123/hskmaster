@@ -102,5 +102,6 @@
   "volume": "Âm lượng",
   "testVoice": "Thử nghiệm",
   "testVoiceDesc": "Nghe \"你好\"",
-  "playButton": "Phát"
+  "playButton": "Phát",
+  "byHSKLevel": "Theo cấp HSK"
 }

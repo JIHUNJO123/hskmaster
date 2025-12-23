@@ -320,4 +320,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get playButton => 'Reproducir';
+
+  @override
+  String get byHSKLevel => 'Por nivel HSK';
 }

@@ -179,6 +179,14 @@ class _WordListScreenState extends State<WordListScreen> {
         _words.sort((a, b) => a.word.compareTo(b.word));
       } else if (order == 'random') {
         _words.shuffle();
+      } else if (order == 'byLevel') {
+        // HSK 레벨순 정렬 (HSK1 -> HSK2 -> ... -> HSK6)
+        _words.sort((a, b) {
+          final levelA = int.tryParse(a.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          final levelB = int.tryParse(b.level.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+          if (levelA != levelB) return levelA.compareTo(levelB);
+          return a.word.compareTo(b.word); // 같은 레벨 내에서는 알파벳순
+        });
       }
     });
   }
@@ -263,6 +271,22 @@ class _WordListScreenState extends State<WordListScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(l10n.random),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'byLevel',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.stairs,
+                          color:
+                              _sortOrder == 'byLevel'
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(l10n.byHSKLevel),
                       ],
                     ),
                   ),

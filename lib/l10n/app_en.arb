@@ -116,5 +116,6 @@
   "volume": "Volume",
   "testVoice": "Test",
   "testVoiceDesc": "Listen to \"你好\"",
-  "playButton": "Play"
+  "playButton": "Play",
+  "byHSKLevel": "By HSK Level"
 }

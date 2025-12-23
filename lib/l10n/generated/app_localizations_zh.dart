@@ -320,4 +320,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get playButton => '播放';
+
+  @override
+  String get byHSKLevel => '按HSK等级';
 }

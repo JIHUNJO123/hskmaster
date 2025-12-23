@@ -320,4 +320,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get playButton => '재생';
+
+  @override
+  String get byHSKLevel => 'HSK 급수순';
 }

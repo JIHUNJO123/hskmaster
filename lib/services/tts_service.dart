@@ -139,7 +139,9 @@ class TtsService {
       // 남자: 낮은 pitch (0.8), 여자: 높은 pitch (1.2)
       final pitch = _isMaleVoice ? 0.8 : 1.2;
       await _flutterTts.setPitch(pitch);
-      print('Applied pitch: $pitch for ${_isMaleVoice ? "male" : "female"} voice');
+      print(
+        'Applied pitch: $pitch for ${_isMaleVoice ? "male" : "female"} voice',
+      );
 
       // 추가로 음성 선택 시도
       final voices = await _flutterTts.getVoices;
@@ -151,22 +153,27 @@ class TtsService {
       // 디버그: 모든 음성 출력
       print('Available voices:');
       for (var voice in (voices as List)) {
-        print('  - ${voice['name']} (${voice['locale']}) gender: ${voice['gender']}');
+        print(
+          '  - ${voice['name']} (${voice['locale']}) gender: ${voice['gender']}',
+        );
       }
 
       // 중국어 음성 필터링
-      final chineseVoices = (voices as List).where((voice) {
-        final locale = voice['locale']?.toString().toLowerCase() ?? '';
-        final name = voice['name']?.toString().toLowerCase() ?? '';
-        return locale.contains('zh') || 
-               locale.contains('cmn') || 
-               name.contains('chinese') ||
-               name.contains('mandarin');
-      }).toList();
+      final chineseVoices =
+          (voices as List).where((voice) {
+            final locale = voice['locale']?.toString().toLowerCase() ?? '';
+            final name = voice['name']?.toString().toLowerCase() ?? '';
+            return locale.contains('zh') ||
+                locale.contains('cmn') ||
+                name.contains('chinese') ||
+                name.contains('mandarin');
+          }).toList();
 
       print('Chinese voices found: ${chineseVoices.length}');
       for (var voice in chineseVoices) {
-        print('  - ${voice['name']} (${voice['locale']}) gender: ${voice['gender']}');
+        print(
+          '  - ${voice['name']} (${voice['locale']}) gender: ${voice['gender']}',
+        );
       }
 
       if (chineseVoices.isEmpty) {
@@ -176,24 +183,30 @@ class TtsService {
 
       // 남자/여자 음성 찾기
       Map<String, dynamic>? selectedVoice;
-      
+
       for (var voice in chineseVoices) {
         final name = voice['name']?.toString().toLowerCase() ?? '';
         final gender = voice['gender']?.toString().toLowerCase() ?? '';
-        
+
         // 성별로 필터링
         if (_isMaleVoice) {
-          if (gender == 'male' || name.contains('male') || 
-              name.contains('yunxi') || name.contains('yunyang') ||
-              name.contains('kangkang') || name.contains('yunjian')) {
+          if (gender == 'male' ||
+              name.contains('male') ||
+              name.contains('yunxi') ||
+              name.contains('yunyang') ||
+              name.contains('kangkang') ||
+              name.contains('yunjian')) {
             selectedVoice = voice;
             print('Found male voice: ${voice['name']}');
             break;
           }
         } else {
-          if (gender == 'female' || name.contains('female') || 
-              name.contains('xiaoxiao') || name.contains('xiaoyi') ||
-              name.contains('yaoyao') || name.contains('huihui')) {
+          if (gender == 'female' ||
+              name.contains('female') ||
+              name.contains('xiaoxiao') ||
+              name.contains('xiaoyi') ||
+              name.contains('yaoyao') ||
+              name.contains('huihui')) {
             selectedVoice = voice;
             print('Found female voice: ${voice['name']}');
             break;
@@ -212,7 +225,7 @@ class TtsService {
           "name": selectedVoice['name'],
           "locale": selectedVoice['locale'],
         });
-        
+
         print('Selected voice: ${selectedVoice['name']}');
       }
     } catch (e) {

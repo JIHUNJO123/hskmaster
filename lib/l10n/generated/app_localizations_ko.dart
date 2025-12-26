@@ -114,7 +114,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get disclaimer => '면책 조항';
 
   @override
-  String get disclaimerText => '이 앱은 HSK 시험 준비와 중국어 학습을 위한 어휘를 제공합니다. 콘텐츠는 교육 목적으로 제공됩니다.';
+  String get disclaimerText =>
+      '이 앱은 HSK 시험 준비와 중국어 학습을 위한 어휘를 제공합니다. 콘텐츠는 교육 목적으로 제공됩니다.';
 
   @override
   String get privacyPolicy => '개인정보 처리방침';
@@ -253,10 +254,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get keepPracticing => '계속 연습하면 더 좋아질 거예요!';
 
   @override
-  String get privacyPolicyContent => '이 앱은 개인정보를 수집, 저장 또는 공유하지 않습니다. 학습 진행 상황과 즐겨찾기는 기기에만 저장됩니다. 외부 서버로 데이터가 전송되지 않습니다.';
+  String get privacyPolicyContent =>
+      '이 앱은 개인정보를 수집, 저장 또는 공유하지 않습니다. 학습 진행 상황과 즐겨찾기는 기기에만 저장됩니다. 외부 서버로 데이터가 전송되지 않습니다.';
 
   @override
-  String get restorePurchaseDesc => '다른 기기에서 광고 제거를 구매했거나 앱을 재설치한 경우 여기를 눌러 구매를 복원하세요.';
+  String get restorePurchaseDesc =>
+      '다른 기기에서 광고 제거를 구매했거나 앱을 재설치한 경우 여기를 눌러 구매를 복원하세요.';
 
   @override
   String get restoreComplete => '복원 완료';
@@ -329,4 +332,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get selectLevel => '급수 선택';
+
+  @override
+  String get lockedContent => '잠긴 콘텐츠';
+
+  @override
+  String get watchAdToUnlock => '짧은 영상을 시청하면 자정까지 모든 단어가 잠금 해제됩니다!';
+
+  @override
+  String get watchAd => '광고 보기';
+
+  @override
+  String get adNotReady => '광고가 준비되지 않았습니다. 다시 시도해 주세요.';
+
+  @override
+  String get unlockedUntilMidnight => '자정까지 모든 단어가 잠금 해제되었습니다!';
 }

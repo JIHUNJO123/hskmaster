@@ -15,7 +15,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _adsRemoved = false;
   bool _isRestoring = false;
   double _speechRate = 0.5;
   double _volume = 1.0;
@@ -24,7 +23,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAdsStatus();
     _loadTtsSettings();
   }
 
@@ -34,12 +32,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _speechRate = TtsService.instance.speechRate;
       _volume = TtsService.instance.volume;
       _isMaleVoice = TtsService.instance.isMaleVoice;
-    });
-  }
-
-  Future<void> _checkAdsStatus() async {
-    setState(() {
-      _adsRemoved = AdService.instance.adsRemoved;
     });
   }
 
@@ -54,16 +46,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       _isRestoring = false;
-      _adsRemoved = AdService.instance.adsRemoved;
     });
 
     if (mounted) {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            _adsRemoved ? l10n.restoreComplete : l10n.noPurchaseFound,
-          ),
+          content: Text(l10n.restoreComplete),
         ),
       );
     }
@@ -154,13 +143,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Ads Section (웹에서는 숨김)
           if (!kIsWeb) ...[
             _buildSectionHeader(l10n.removeAds),
-            if (_adsRemoved)
-              ListTile(
-                leading: const Icon(Icons.check_circle, color: Colors.green),
-                title: Text(l10n.adsRemoved),
-                subtitle: Text(l10n.thankYou),
-              )
-            else ...[
+            // 잠금 해제 상태 표시
+            ListTile(
+              leading: Icon(
+                AdService.instance.isUnlocked ? Icons.lock_open : Icons.lock_outline,
+                color: AdService.instance.isUnlocked ? Colors.green : null,
+              ),
+              title: Text(AdService.instance.isUnlocked ? l10n.unlockedUntilMidnight : l10n.lockedContent),
+              subtitle: Text(
+                AdService.instance.isUnlocked 
+                  ? l10n.thankYou 
+                  : l10n.watchAdToUnlock,
+              ),
+            ),
+            // IAP 광고 제거 구매 (스토어 사용 가능한 경우에만 표시)
+            if (PurchaseService.instance.isAvailable) ...[
               ListTile(
                 leading: const Icon(Icons.block),
                 title: Text(l10n.removeAds),
@@ -190,11 +187,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Info Section
           _buildSectionHeader(l10n.info),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: Text(l10n.version),
-            subtitle: const Text('1.0.0'),
-          ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: Text(l10n.privacyPolicy),
@@ -269,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final purchaseService = PurchaseService.instance;
     final success = await purchaseService.buyRemoveAds();
     if (success) {
-      _checkAdsStatus();
+      setState(() {});
     }
   }
 

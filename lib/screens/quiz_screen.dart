@@ -4,7 +4,6 @@ import '../l10n/generated/app_localizations.dart';
 import '../db/database_helper.dart';
 import '../models/word.dart';
 import '../services/translation_service.dart';
-import '../services/ad_service.dart';
 
 class QuizScreen extends StatefulWidget {
   final String? category;
@@ -33,15 +32,6 @@ class _QuizScreenState extends State<QuizScreen> {
   void initState() {
     super.initState();
     _loadWords();
-    _loadInterstitialAd();
-  }
-
-  Future<void> _loadInterstitialAd() async {
-    final adService = AdService.instance;
-    await adService.initialize();
-    if (!adService.adsRemoved) {
-      await adService.loadInterstitialAd();
-    }
   }
 
   Future<void> _loadWords() async {
@@ -182,9 +172,6 @@ class _QuizScreenState extends State<QuizScreen> {
     } else {
       message = l10n.keepPracticing;
     }
-
-    // 퀴즈 완료 시 전면광고 표시
-    await AdService.instance.showInterstitialAd();
 
     showDialog(
       context: context,

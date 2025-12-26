@@ -119,5 +119,10 @@
   "playButton": "Play",
   "byHSKLevel": "By HSK Level",
   "cancel": "Cancel",
-  "selectLevel": "Select Level"
+  "selectLevel": "Select Level",
+  "lockedContent": "Locked Content",
+  "watchAdToUnlock": "Watch a short video to unlock all words until midnight!",
+  "watchAd": "Watch Ad",
+  "adNotReady": "Ad is not ready yet. Please try again.",
+  "unlockedUntilMidnight": "All words unlocked until midnight!"
 }

@@ -114,7 +114,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get disclaimer => 'Tuyên bố miễn trừ';
 
   @override
-  String get disclaimerText => 'Ứng dụng này cung cấp từ vựng HSK tiếng Trung cho việc ôn thi và học ngôn ngữ. Nội dung chỉ dành cho mục đích giáo dục.';
+  String get disclaimerText =>
+      'Ứng dụng này cung cấp từ vựng HSK tiếng Trung cho việc ôn thi và học ngôn ngữ. Nội dung chỉ dành cho mục đích giáo dục.';
 
   @override
   String get privacyPolicy => 'Chính sách bảo mật';
@@ -253,10 +254,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get keepPracticing => 'Tiếp tục luyện tập! Bạn sẽ tiến bộ!';
 
   @override
-  String get privacyPolicyContent => 'Ứng dụng này không thu thập, lưu trữ hoặc chia sẻ bất kỳ thông tin cá nhân nào. Tiến trình học tập và yêu thích của bạn chỉ được lưu trên thiết bị. Không có dữ liệu nào được truyền đến máy chủ bên ngoài.';
+  String get privacyPolicyContent =>
+      'Ứng dụng này không thu thập, lưu trữ hoặc chia sẻ bất kỳ thông tin cá nhân nào. Tiến trình học tập và yêu thích của bạn chỉ được lưu trên thiết bị. Không có dữ liệu nào được truyền đến máy chủ bên ngoài.';
 
   @override
-  String get restorePurchaseDesc => 'Nếu bạn đã mua xóa quảng cáo trên thiết bị khác hoặc sau khi cài đặt lại ứng dụng, nhấn vào đây để khôi phục.';
+  String get restorePurchaseDesc =>
+      'Nếu bạn đã mua xóa quảng cáo trên thiết bị khác hoặc sau khi cài đặt lại ứng dụng, nhấn vào đây để khôi phục.';
 
   @override
   String get restoreComplete => 'Khôi phục hoàn tất';
@@ -283,7 +286,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get showPinyinInList => 'Hiện pinyin trong danh sách';
 
   @override
-  String get showPinyinInListDesc => 'Hiển thị pinyin trên chữ Hán trong danh sách từ';
+  String get showPinyinInListDesc =>
+      'Hiển thị pinyin trên chữ Hán trong danh sách từ';
 
   @override
   String get search => 'Tìm kiếm';
@@ -329,4 +333,20 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get selectLevel => 'Chọn cấp độ';
+
+  @override
+  String get lockedContent => 'Locked Content';
+
+  @override
+  String get watchAdToUnlock =>
+      'Watch a short video to unlock all words until midnight!';
+
+  @override
+  String get watchAd => 'Watch Ad';
+
+  @override
+  String get adNotReady => 'Ad is not ready yet. Please try again.';
+
+  @override
+  String get unlockedUntilMidnight => 'All words unlocked until midnight!';
 }

@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+     import 'package:flutter/material.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../db/database_helper.dart';
 import '../models/word.dart';
@@ -33,7 +32,6 @@ class _WordListScreenState extends State<WordListScreen> {
   int _currentFlashcardIndex = 0;
   PageController _pageController = PageController();
   String _sortOrder = 'alphabetical';
-  bool _isBannerAdLoaded = false;
   String _searchQuery = '';
   bool _showLevelBadge = true; // 레벨 뱃지 표시 여부
 
@@ -41,7 +39,6 @@ class _WordListScreenState extends State<WordListScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   Map<int, String> _translatedDefinitions = {};
-  bool _hasShownLevelAd = false; // 레벨 진입 시 광고 표시 여부
 
   // 스크롤/플래시카드 위치 저장용 키
   String get _scrollPositionKey =>
@@ -55,24 +52,9 @@ class _WordListScreenState extends State<WordListScreen> {
     _initFlashcardPosition();
     _listScrollController.addListener(_onScroll);
     _loadWords();
-    _loadBannerAd();
+    _loadUnlockStatus();
+    AdService.instance.loadRewardedAd();
     _loadSettings();
-    _showLevelEntryAd();
-  }
-
-  // 레벨 진입 시 전면광고 (특정 레벨 선택 시)
-  Future<void> _showLevelEntryAd() async {
-    if (widget.level != null && !_hasShownLevelAd) {
-      _hasShownLevelAd = true;
-      final adService = AdService.instance;
-      await adService.initialize();
-      if (!adService.adsRemoved) {
-        await adService.loadInterstitialAd();
-        // 약간의 지연 후 표시 (화면 전환 완료 후)
-        await Future.delayed(const Duration(milliseconds: 500));
-        await adService.showInterstitialAd();
-      }
-    }
   }
 
   Future<void> _initFlashcardPosition() async {
@@ -125,21 +107,74 @@ class _WordListScreenState extends State<WordListScreen> {
     await prefs.setInt(_flashcardPositionKey, index);
   }
 
-  Future<void> _loadBannerAd() async {
-    final adService = AdService.instance;
-    await adService.initialize();
+  Future<void> _loadUnlockStatus() async {
+    await AdService.instance.loadUnlockStatus();
+    if (mounted) setState(() {});
+  }
 
-    if (!adService.adsRemoved) {
-      await adService.loadBannerAd(
-        onLoaded: () {
-          if (mounted) {
-            setState(() {
-              _isBannerAdLoaded = true;
-            });
-          }
-        },
+  // 잠긴 단어인지 확인 (짝수 인덱스 = 2, 4, 6...)
+  bool _isWordLocked(int index) {
+    // 홀수 단어는 무료, 짝수 단어(2, 4, 6...)는 잠김
+    if (index % 2 == 0) return false; // 0, 2, 4... -> 1번, 3번, 5번 단어 (무료)
+    return !AdService.instance.isUnlocked; // 1, 3, 5... -> 2번, 4번, 6번 단어 (잠김)
+  }
+
+  // 광고 시청 다이얼로그 표시
+  void _showUnlockDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.lock, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.lockedContent)),
+          ],
+        ),
+        content: Text(l10n.watchAdToUnlock),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              _watchAdToUnlock();
+            },
+            icon: const Icon(Icons.play_circle_outline),
+            label: Text(l10n.watchAd),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 광고 시청하여 잠금 해제
+  Future<void> _watchAdToUnlock() async {
+    final l10n = AppLocalizations.of(context)!;
+    final adService = AdService.instance;
+
+    if (!adService.isAdReady) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.adNotReady)),
       );
+      adService.loadRewardedAd();
+      return;
     }
+
+    await adService.showRewardedAd(
+      onRewarded: () async {
+        await adService.unlockUntilMidnight();
+        if (mounted) {
+          setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.unlockedUntilMidnight)),
+          );
+        }
+      },
+    );
   }
 
   Future<void> _loadWords() async {
@@ -220,7 +255,6 @@ class _WordListScreenState extends State<WordListScreen> {
     _pageController.dispose();
     _listScrollController.dispose();
     _searchController.dispose();
-    AdService.instance.disposeBannerAd();
     super.dispose();
   }
 
@@ -349,7 +383,6 @@ class _WordListScreenState extends State<WordListScreen> {
                     ? _buildFlashcardView(displayWords)
                     : _buildListView(displayWords),
           ),
-          _buildBannerAd(),
         ],
       ),
     );
@@ -391,21 +424,6 @@ class _WordListScreenState extends State<WordListScreen> {
     );
   }
 
-  Widget _buildBannerAd() {
-    final adService = AdService.instance;
-    if (adService.adsRemoved ||
-        !_isBannerAdLoaded ||
-        adService.bannerAd == null) {
-      return const SizedBox.shrink();
-    }
-    return Container(
-      width: adService.bannerAd!.size.width.toDouble(),
-      height: adService.bannerAd!.size.height.toDouble(),
-      alignment: Alignment.center,
-      child: AdWidget(ad: adService.bannerAd!),
-    );
-  }
-
   Widget _buildListView(List<Word> words) {
     if (words.isEmpty) {
       return Center(child: Text(AppLocalizations.of(context)!.cannotLoadWords));
@@ -416,19 +434,42 @@ class _WordListScreenState extends State<WordListScreen> {
       itemCount: words.length,
       itemBuilder: (context, index) {
         final word = words[index];
+        final isLocked = _isWordLocked(index);
         final translatedDef = _translatedDefinitions[word.id];
+
+        // 잠긴 단어의 정의 마스킹
+        final definition =
+            isLocked
+                ? '🔒 ••••••••••••••'
+                : (translatedDef ?? word.definition);
+
+        // 잠긴 단어의 텍스트 마스킹 (첫 글자만 표시)
+        final displayWord =
+            isLocked && word.word.isNotEmpty
+                ? '${word.word.characters.first}${'•' * (word.word.characters.length - 1).clamp(0, 6)}'
+                : word.word;
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: ListTile(
             title: Row(
               children: [
+                // 잠금 아이콘
+                if (isLocked) ...[
+                  Icon(
+                    Icons.lock,
+                    size: 16,
+                    color: Colors.grey[500],
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 Expanded(
                   child: Text(
-                    word.word,
-                    style: const TextStyle(
+                    displayWord,
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: isLocked ? Colors.grey : null,
                     ),
                   ),
                 ),
@@ -458,15 +499,18 @@ class _WordListScreenState extends State<WordListScreen> {
               children: [
                 if (word.pinyin.isNotEmpty)
                   Text(
-                    word.pinyin,
+                    isLocked ? '••••••' : word.pinyin,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: isLocked ? Colors.grey : Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 Text(
-                  translatedDef ?? word.definition,
+                  definition,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isLocked ? Colors.grey : null,
+                  ),
                 ),
               ],
             ),
@@ -477,7 +521,12 @@ class _WordListScreenState extends State<WordListScreen> {
               ),
               onPressed: () => _toggleFavorite(word),
             ),
-            onTap: () {
+            onTap: () async {
+              // 잠긴 단어면 광고 다이얼로그 표시
+              if (isLocked) {
+                _showUnlockDialog();
+                return;
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -514,18 +563,9 @@ class _WordListScreenState extends State<WordListScreen> {
           child: PageView.builder(
             controller: _pageController,
             itemCount: words.length,
-            onPageChanged: (index) async {
+            onPageChanged: (index) {
               setState(() => _currentFlashcardIndex = index);
               _saveFlashcardPosition(index);
-              // 마지막 카드 도달 시 전면광고
-              if (index == words.length - 1) {
-                final adService = AdService.instance;
-                if (!adService.adsRemoved) {
-                  await adService.loadInterstitialAd();
-                  await Future.delayed(const Duration(milliseconds: 300));
-                  await adService.showInterstitialAd();
-                }
-              }
             },
             itemBuilder: (context, index) {
               final word = words[index];

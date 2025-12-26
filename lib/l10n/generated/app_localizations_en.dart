@@ -114,7 +114,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disclaimer => 'Disclaimer';
 
   @override
-  String get disclaimerText => 'This app provides HSK Chinese vocabulary for exam preparation and language learning. Content is for educational purposes.';
+  String get disclaimerText =>
+      'This app provides HSK Chinese vocabulary for exam preparation and language learning. Content is for educational purposes.';
 
   @override
   String get privacyPolicy => 'Privacy Policy';
@@ -253,10 +254,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keepPracticing => 'Keep practicing! You will improve!';
 
   @override
-  String get privacyPolicyContent => 'This app does not collect, store, or share any personal information. Your learning progress and favorites are stored only on your device. No data is transmitted to external servers.';
+  String get privacyPolicyContent =>
+      'This app does not collect, store, or share any personal information. Your learning progress and favorites are stored only on your device. No data is transmitted to external servers.';
 
   @override
-  String get restorePurchaseDesc => 'If you have previously purchased ad removal on another device or after reinstalling the app, tap here to restore your purchase.';
+  String get restorePurchaseDesc =>
+      'If you have previously purchased ad removal on another device or after reinstalling the app, tap here to restore your purchase.';
 
   @override
   String get restoreComplete => 'Restore complete';
@@ -283,7 +286,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showPinyinInList => 'Show Pinyin in Word List';
 
   @override
-  String get showPinyinInListDesc => 'Display pinyin above Chinese characters in word list';
+  String get showPinyinInListDesc =>
+      'Display pinyin above Chinese characters in word list';
 
   @override
   String get search => 'Search';
@@ -329,4 +333,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectLevel => 'Select Level';
+
+  @override
+  String get lockedContent => 'Locked Content';
+
+  @override
+  String get watchAdToUnlock =>
+      'Watch a short video to unlock all words until midnight!';
+
+  @override
+  String get watchAd => 'Watch Ad';
+
+  @override
+  String get adNotReady => 'Ad is not ready yet. Please try again.';
+
+  @override
+  String get unlockedUntilMidnight => 'All words unlocked until midnight!';
 }

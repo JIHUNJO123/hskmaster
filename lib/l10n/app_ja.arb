@@ -119,5 +119,10 @@
   "playButton": "再生",
   "byHSKLevel": "HSKレベル順",
   "cancel": "キャンセル",
-  "selectLevel": "レベルを選択"
+  "selectLevel": "レベルを選択",
+  "lockedContent": "ロックされたコンテンツ",
+  "watchAdToUnlock": "短い動画を見て、真夜中まですべての単語をロック解除しましょう！",
+  "watchAd": "広告を見る",
+  "adNotReady": "広告の準備ができていません。もう一度お試しください。",
+  "unlockedUntilMidnight": "真夜中まですべての単語がロック解除されました！"
 }

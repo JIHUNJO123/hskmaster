@@ -1,4 +1,4 @@
-package com.hoonielab.dailyjpstep
+package com.jihunjo.hskmaster
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -93,7 +93,9 @@ class AdService {
           _loadAttempts = 0;
         },
         onAdFailedToLoad: (error) {
-          print('Rewarded interstitial ad failed to load: ${error.code} - ${error.message}');
+          print(
+            'Rewarded interstitial ad failed to load: ${error.code} - ${error.message}',
+          );
           _isLoading = false;
           _loadAttempts++;
           // 최대 3번까지 재시도

@@ -71,23 +71,38 @@ class AdService {
     _loadAd();
   }
 
+  int _loadAttempts = 0;
+  static const int _maxLoadAttempts = 3;
+
   void _loadAd() {
     // 모바일이 아니면 로드하지 않음
     if (!Platform.isAndroid && !Platform.isIOS) return;
     final String adUnitId =
         Platform.isIOS ? rewardedAdUnitIdIOS : rewardedAdUnitIdAndroid;
 
+    print('Loading rewarded ad with ID: $adUnitId');
+
     RewardedAd.load(
       adUnitId: adUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
+          print('Rewarded ad loaded successfully');
           _rewardedAd = ad;
           _isLoading = false;
+          _loadAttempts = 0;
         },
         onAdFailedToLoad: (error) {
-          print('Rewarded ad failed to load: ${error.message}');
+          print('Rewarded ad failed to load: ${error.code} - ${error.message}');
           _isLoading = false;
+          _loadAttempts++;
+          // 최대 3번까지 재시도
+          if (_loadAttempts < _maxLoadAttempts) {
+            Future.delayed(const Duration(seconds: 3), () {
+              _isLoading = false;
+              loadRewardedAd();
+            });
+          }
         },
       ),
     );
